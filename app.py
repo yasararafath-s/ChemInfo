@@ -43,54 +43,57 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS
+# THEME TOGGLE
 # ============================================================
-st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #3498db;
-        text-align: center;
-        margin-bottom: 0.5rem;
-    }
-    .sub-header {
-        font-size: 1.0rem;
-        opacity: 0.7;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .section-header {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #3498db;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 5px;
-        margin-top: 1.5rem;
-    }
-    .pass-badge {
-        background-color: #27ae60;
-        color: white;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-weight: 600;
-    }
-    .fail-badge {
-        background-color: #e74c3c;
-        color: white;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-weight: 600;
-    }
-    .stTabs [data-baseweb="tab-list"] button {
-        font-size: 1.05rem;
-    }
-    div[data-testid="stExpander"] details summary p {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-</style>
-""", unsafe_allow_html=True)
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
+
+# Theme selector in sidebar (placed before other sidebar content)
+with st.sidebar:
+    st.session_state.theme = st.selectbox(
+        "Theme",
+        ["Light", "Dark"],
+        index=["Light", "Dark"].index(st.session_state.theme),
+        key="theme_selector",
+    )
+
+is_dark = st.session_state.theme == "Dark"
+
+# ============================================================
+# CUSTOM CSS (adapts to selected theme)
+# ============================================================
+if is_dark:
+    theme_css = """
+    <style>
+        /* Dark theme overrides */
+        .stApp { background-color: #0e1117; color: #e0e0e0; }
+        .main-header { font-size: 2.2rem; font-weight: 700; color: #58a6ff; text-align: center; margin-bottom: 0.5rem; }
+        .sub-header { font-size: 1.0rem; color: #8b949e; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #58a6ff; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 1.5rem; }
+        section[data-testid="stSidebar"] { background-color: #161b22; }
+        .stTabs [data-baseweb="tab-list"] button { font-size: 1.05rem; }
+        div[data-testid="stExpander"] details summary p { font-size: 1.1rem; font-weight: 600; }
+        .pass-badge { background-color: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+        .fail-badge { background-color: #e74c3c; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+    </style>
+    """
+else:
+    theme_css = """
+    <style>
+        /* Light theme overrides */
+        .stApp { background-color: #ffffff; color: #1a1a2e; }
+        .main-header { font-size: 2.2rem; font-weight: 700; color: #1E3A5F; text-align: center; margin-bottom: 0.5rem; }
+        .sub-header { font-size: 1.0rem; color: #666666; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #1E3A5F; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 1.5rem; }
+        section[data-testid="stSidebar"] { background-color: #f8f9fa; }
+        .stTabs [data-baseweb="tab-list"] button { font-size: 1.05rem; }
+        div[data-testid="stExpander"] details summary p { font-size: 1.1rem; font-weight: 600; }
+        .pass-badge { background-color: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+        .fail-badge { background-color: #e74c3c; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+    </style>
+    """
+
+st.markdown(theme_css, unsafe_allow_html=True)
 
 
 # ============================================================
