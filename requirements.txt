@@ -1,4 +1,4 @@
-streamlit==1.44.0
+streamlit>=1.44.0
 numpy<2
 rdkit-pypi
 pandas>=2.0.0

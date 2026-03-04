@@ -53,85 +53,169 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS (auto-adapts to Streamlit's native theme)
+# THEME TOGGLE
 # ============================================================
-theme_css = """
-<style>
-    /* ===== SHARED STYLES (both themes) ===== */
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
 
-    /* --- Custom Headers --- */
-    .main-header {
-        font-size: 2.4rem;
-        font-weight: 800;
-        text-align: center;
-        margin-bottom: 0.3rem;
-        letter-spacing: -0.5px;
-    }
-    .sub-header {
-        font-size: 0.95rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        letter-spacing: 0.3px;
-        opacity: 0.65;
-    }
-    .section-header {
-        font-size: 1.3rem;
-        font-weight: 600;
-        padding-bottom: 6px;
-        margin-top: 1.5rem;
-    }
+with st.sidebar:
+    theme_choice = st.toggle(
+        "Light Mode",
+        value=(st.session_state.theme == "Light"),
+        key="theme_toggle",
+    )
+    st.session_state.theme = "Light" if theme_choice else "Dark"
 
-    /* --- Tabs --- */
-    .stTabs [data-baseweb="tab-list"] {
-        border-radius: 10px;
-        padding: 4px;
-        gap: 4px;
-    }
-    .stTabs [data-baseweb="tab-list"] button {
-        font-size: 1.0rem;
-        font-weight: 500;
-        border-radius: 8px;
-        padding: 8px 16px;
-        border: none !important;
-    }
+is_dark = st.session_state.theme == "Dark"
 
-    /* --- Metrics --- */
-    div[data-testid="stMetric"] {
-        border-radius: 10px;
-        padding: 12px 16px;
-    }
-    div[data-testid="stMetric"] label {
-        font-size: 0.85rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
 
-    /* --- DataFrames / Tables --- */
-    .stDataFrame, div[data-testid="stDataFrame"] {
-        border-radius: 10px;
-        overflow: hidden;
-    }
+# ============================================================
+# CUSTOM CSS (adapts to selected theme)
+# ============================================================
+if is_dark:
+    theme_css = """
+    <style>
+        /* ===== DARK THEME ===== */
+        .stApp { background-color: #0d1117; color: #e6edf3; }
 
-    /* --- Expanders --- */
-    div[data-testid="stExpander"] {
-        border-radius: 10px !important;
-        margin-bottom: 8px;
-    }
-    div[data-testid="stExpander"] details summary p {
-        font-size: 1.05rem;
-        font-weight: 600;
-    }
+        .main-header {
+            font-size: 2.4rem; font-weight: 800;
+            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; margin-bottom: 0.3rem; letter-spacing: -0.5px;
+        }
+        .sub-header { font-size: 0.95rem; color: #8b949e; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #79c0ff;
+            border-bottom: 2px solid #1f6feb; padding-bottom: 6px; margin-top: 1.5rem; }
 
-    /* --- Alert Boxes --- */
-    div[data-testid="stAlert"], div[role="alert"] {
-        border-radius: 10px !important;
-    }
+        section[data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #21262d; }
 
-    /* --- Buttons --- */
-    .stFormSubmitButton > button {
-        border-radius: 8px !important;
-        font-weight: 600;
-    }
+        .stTabs [data-baseweb="tab-list"] {
+            background-color: #161b22; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #21262d;
+        }
+        .stTabs [data-baseweb="tab-list"] button {
+            font-size: 1.0rem; font-weight: 500; color: #8b949e !important;
+            border-radius: 8px; padding: 8px 16px; border: none !important;
+        }
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
+            background-color: #1f6feb !important; color: #ffffff !important; font-weight: 600;
+        }
+        .stTabs [data-baseweb="tab-list"] button:hover { color: #e6edf3 !important; background-color: #21262d; }
+
+        div[data-testid="stMetric"] { background-color: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 12px 16px; }
+        div[data-testid="stMetric"] label { color: #8b949e !important; font-size: 0.85rem !important; text-transform: uppercase; }
+        div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #58a6ff !important; font-weight: 700 !important; }
+
+        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #21262d; }
+
+        div[data-testid="stExpander"] { background-color: #161b22; border: 1px solid #21262d !important; border-radius: 10px !important; margin-bottom: 8px; }
+        div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #e6edf3 !important; }
+        div[data-testid="stExpander"] details > div { border-top: 1px solid #21262d; }
+
+        div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
+
+        .stFormSubmitButton > button {
+            background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
+            color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
+        }
+        .stFormSubmitButton > button:hover { background: linear-gradient(135deg, #388bfd, #58a6ff) !important; }
+
+        .stDownloadButton > button {
+            background-color: #161b22 !important; color: #58a6ff !important;
+            border: 1px solid #1f6feb !important; border-radius: 8px !important;
+        }
+        .stDownloadButton > button:hover { background-color: #1f6feb !important; color: #ffffff !important; }
+
+        a { color: #58a6ff !important; }
+        a:hover { color: #79c0ff !important; }
+        hr { border-color: #21262d !important; }
+
+        .stProgress > div > div > div { background: linear-gradient(90deg, #1f6feb, #a371f7) !important; border-radius: 10px; }
+        .stProgress > div > div { background-color: #21262d !important; border-radius: 10px; }
+
+        div[data-testid="stFileUploader"] { background-color: #161b22; border: 2px dashed #30363d !important; border-radius: 10px; }
+
+        .stMarkdown table { border-collapse: collapse; width: 100%; }
+        .stMarkdown th { background-color: #161b22 !important; color: #58a6ff !important; border: 1px solid #30363d !important; padding: 10px 14px !important; font-weight: 600; }
+        .stMarkdown td { background-color: #0d1117 !important; color: #e6edf3 !important; border: 1px solid #21262d !important; padding: 8px 14px !important; }
+        .stMarkdown tr:hover td { background-color: #161b22 !important; }
+
+        .stImage { background-color: #ffffff; border-radius: 10px; padding: 8px; border: 1px solid #21262d; }
+
+        .pass-badge { background: linear-gradient(135deg, #238636, #2ea043); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+        .fail-badge { background: linear-gradient(135deg, #da3633, #f85149); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    </style>
+    """
+else:
+    theme_css = """
+    <style>
+        /* ===== LIGHT THEME ===== */
+        .stApp { background-color: #ffffff; color: #1f2937; }
+
+        .main-header {
+            font-size: 2.4rem; font-weight: 800;
+            background: linear-gradient(135deg, #1E3A5F 0%, #2563eb 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; margin-bottom: 0.3rem; letter-spacing: -0.5px;
+        }
+        .sub-header { font-size: 0.95rem; color: #6b7280; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #1E3A5F;
+            border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin-top: 1.5rem; }
+
+        section[data-testid="stSidebar"] { background-color: #f8fafc; border-right: 1px solid #e5e7eb; }
+
+        .stTabs [data-baseweb="tab-list"] {
+            background-color: #f1f5f9; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #e2e8f0;
+        }
+        .stTabs [data-baseweb="tab-list"] button {
+            font-size: 1.0rem; font-weight: 500; color: #64748b !important;
+            border-radius: 8px; padding: 8px 16px; border: none !important;
+        }
+        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
+            background-color: #2563eb !important; color: #ffffff !important; font-weight: 600;
+        }
+        .stTabs [data-baseweb="tab-list"] button:hover { color: #1f2937 !important; background-color: #e2e8f0; }
+
+        div[data-testid="stMetric"] { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; }
+        div[data-testid="stMetric"] label { color: #6b7280 !important; font-size: 0.85rem !important; text-transform: uppercase; }
+        div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #1E3A5F !important; font-weight: 700 !important; }
+
+        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+
+        div[data-testid="stExpander"] { background-color: #f8fafc; border: 1px solid #e2e8f0 !important; border-radius: 10px !important; margin-bottom: 8px; }
+        div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #1f2937 !important; }
+        div[data-testid="stExpander"] details > div { border-top: 1px solid #e2e8f0; }
+
+        div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
+
+        .stFormSubmitButton > button {
+            background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+            color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
+        }
+        .stFormSubmitButton > button:hover { background: linear-gradient(135deg, #3b82f6, #60a5fa) !important; }
+
+        .stDownloadButton > button {
+            background-color: #f8fafc !important; color: #2563eb !important;
+            border: 1px solid #3b82f6 !important; border-radius: 8px !important;
+        }
+        .stDownloadButton > button:hover { background-color: #2563eb !important; color: #ffffff !important; }
+
+        .stProgress > div > div > div { background: linear-gradient(90deg, #2563eb, #7c3aed) !important; border-radius: 10px; }
+
+        .stImage { border-radius: 10px; border: 1px solid #e2e8f0; }
+
+        .stMarkdown th { background-color: #f1f5f9 !important; color: #1E3A5F !important; border: 1px solid #e2e8f0 !important; padding: 10px 14px !important; font-weight: 600; }
+        .stMarkdown td { border: 1px solid #e2e8f0 !important; padding: 8px 14px !important; }
+        .stMarkdown tr:hover td { background-color: #f8fafc !important; }
+
+        .pass-badge { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+        .fail-badge { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+    </style>
+    """
     .stDownloadButton > button {
         border-radius: 8px !important;
         font-weight: 500;
