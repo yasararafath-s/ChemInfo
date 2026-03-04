@@ -76,12 +76,22 @@ is_dark = st.session_state.theme == "Dark"
 if is_dark:
     theme_css = """
     <style>
-        /* ===== DARK THEME (overrides native light base) ===== */
-        .stApp { background-color: #0d1117 !important; color: #e6edf3 !important; }
-        .stApp p, .stApp span, .stApp label, .stApp li { color: #e6edf3 !important; }
-        .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #e6edf3 !important; }
-        .stApp code { color: #e6edf3 !important; background-color: #161b22 !important; }
+        /* ===== DARK THEME (comprehensive overrides for light base) ===== */
 
+        /* --- Global backgrounds & text --- */
+        .stApp, .main, .block-container { background-color: #0d1117 !important; color: #e6edf3 !important; }
+        .stApp p, .stApp span, .stApp label, .stApp li, .stApp div { color: #e6edf3 !important; }
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 { color: #e6edf3 !important; }
+        .stApp code { color: #e6edf3 !important; background-color: #161b22 !important; }
+        .stApp pre { background-color: #161b22 !important; color: #e6edf3 !important; }
+
+        /* --- Top toolbar / header bar --- */
+        header[data-testid="stHeader"] { background-color: #0d1117 !important; border-bottom: 1px solid #21262d !important; }
+        header[data-testid="stHeader"] * { color: #e6edf3 !important; }
+        .stDeployButton, [data-testid="stToolbar"] { color: #8b949e !important; }
+        [data-testid="stToolbar"] button { color: #8b949e !important; }
+
+        /* --- Custom classes --- */
         .main-header {
             font-size: 2.4rem; font-weight: 800;
             background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
@@ -92,23 +102,49 @@ if is_dark:
         .section-header { font-size: 1.3rem; font-weight: 600; color: #79c0ff !important;
             border-bottom: 2px solid #1f6feb; padding-bottom: 6px; margin-top: 1.5rem; }
 
-        /* Sidebar */
+        /* --- Sidebar --- */
         section[data-testid="stSidebar"] { background-color: #161b22 !important; border-right: 1px solid #21262d !important; }
+        section[data-testid="stSidebar"] > div { background-color: #161b22 !important; }
         section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
         section[data-testid="stSidebar"] h3 { color: #e6edf3 !important; }
         section[data-testid="stSidebar"] label { color: #c9d1d9 !important; }
         section[data-testid="stSidebar"] p { color: #c9d1d9 !important; }
         section[data-testid="stSidebar"] span { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] input { color: #e6edf3 !important; background-color: #0d1117 !important; }
         section[data-testid="stSidebar"] .stCaption p { color: #8b949e !important; }
+        section[data-testid="stSidebar"] .stMarkdown { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] .stAlert p { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] li { color: #c9d1d9 !important; }
+
+        /* Sidebar inputs */
+        section[data-testid="stSidebar"] input { color: #e6edf3 !important; background-color: #0d1117 !important; border-color: #30363d !important; }
+        section[data-testid="stSidebar"] textarea { color: #e6edf3 !important; background-color: #0d1117 !important; border-color: #30363d !important; }
+
+        /* Sidebar file uploader */
         section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #0d1117 !important; border: 2px dashed #30363d !important; border-radius: 10px; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] span { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] * { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] button { background-color: #21262d !important; color: #c9d1d9 !important; border: 1px solid #30363d !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] { background-color: #0d1117 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] { background-color: #161b22 !important; border-color: #30363d !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] * { color: #c9d1d9 !important; }
 
-        /* Selectbox / dropdowns */
-        .stSelectbox div[data-baseweb="select"] { background-color: #0d1117 !important; }
-        .stSelectbox div[data-baseweb="select"] span { color: #e6edf3 !important; }
+        /* --- Radio buttons --- */
+        .stRadio div[role="radiogroup"] label { color: #c9d1d9 !important; }
+        .stRadio div[role="radiogroup"] div[data-testid="stMarkdownContainer"] p { color: #c9d1d9 !important; }
 
-        /* Tabs */
+        /* --- Selectbox / dropdowns --- */
+        .stSelectbox div[data-baseweb="select"] { background-color: #0d1117 !important; border-color: #30363d !important; }
+        .stSelectbox div[data-baseweb="select"] * { color: #e6edf3 !important; }
+        .stSelectbox svg { fill: #8b949e !important; }
+        div[data-baseweb="popover"] { background-color: #161b22 !important; border: 1px solid #30363d !important; }
+        div[data-baseweb="popover"] li { background-color: #161b22 !important; color: #e6edf3 !important; }
+        div[data-baseweb="popover"] li:hover { background-color: #21262d !important; }
+        div[data-baseweb="menu"] { background-color: #161b22 !important; }
+        div[data-baseweb="menu"] li { color: #e6edf3 !important; }
+
+        /* --- Toggle switch --- */
+        .stToggle label span { color: #c9d1d9 !important; }
+
+        /* --- Tabs --- */
         .stTabs [data-baseweb="tab-list"] {
             background-color: #161b22 !important; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #21262d;
         }
@@ -120,23 +156,32 @@ if is_dark:
             background-color: #1f6feb !important; color: #ffffff !important; font-weight: 600;
         }
         .stTabs [data-baseweb="tab-list"] button:hover { color: #e6edf3 !important; background-color: #21262d; }
+        .stTabs [data-baseweb="tab-panel"] { background-color: #0d1117 !important; }
 
-        /* Metrics */
+        /* --- Metrics --- */
         div[data-testid="stMetric"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px; padding: 12px 16px; }
         div[data-testid="stMetric"] label { color: #8b949e !important; font-size: 0.85rem !important; text-transform: uppercase; }
         div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #58a6ff !important; font-weight: 700 !important; }
 
-        /* DataFrame */
-        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #21262d; }
+        /* --- DataFrame / DataEditor --- */
+        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #21262d !important; }
+        div[data-testid="stDataFrame"] > div { background-color: #0d1117 !important; }
+        .dvn-scroller { background-color: #0d1117 !important; }
+        .glideDataEditor { background-color: #0d1117 !important; }
 
-        /* Expander */
+        /* --- Expander --- */
         div[data-testid="stExpander"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px !important; margin-bottom: 8px; }
+        div[data-testid="stExpander"] details summary { background-color: #161b22 !important; }
         div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #e6edf3 !important; }
-        div[data-testid="stExpander"] details > div { border-top: 1px solid #21262d; }
+        div[data-testid="stExpander"] details > div { border-top: 1px solid #21262d; background-color: #161b22 !important; }
 
+        /* --- Alerts / Info / Success / Warning --- */
         div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
+        .stAlert > div { background-color: #161b22 !important; }
 
-        /* Buttons */
+        /* --- Buttons --- */
+        .stButton > button { background-color: #21262d !important; color: #e6edf3 !important; border: 1px solid #30363d !important; border-radius: 8px !important; }
+        .stButton > button:hover { background-color: #30363d !important; border-color: #8b949e !important; }
         .stFormSubmitButton > button {
             background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
             color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
@@ -148,23 +193,43 @@ if is_dark:
         }
         .stDownloadButton > button:hover { background-color: #1f6feb !important; color: #ffffff !important; }
 
+        /* --- Text area / Text input --- */
+        .stTextArea textarea { background-color: #0d1117 !important; color: #e6edf3 !important; border-color: #30363d !important; }
+        .stTextInput input { background-color: #0d1117 !important; color: #e6edf3 !important; border-color: #30363d !important; }
+
+        /* --- Links --- */
         a { color: #58a6ff !important; }
         a:hover { color: #79c0ff !important; }
         hr { border-color: #21262d !important; }
 
+        /* --- Progress bar --- */
         .stProgress > div > div > div { background: linear-gradient(90deg, #1f6feb, #a371f7) !important; border-radius: 10px; }
         .stProgress > div > div { background-color: #21262d !important; border-radius: 10px; }
 
+        /* --- Markdown tables --- */
         .stMarkdown table { border-collapse: collapse; width: 100%; }
         .stMarkdown th { background-color: #161b22 !important; color: #58a6ff !important; border: 1px solid #30363d !important; padding: 10px 14px !important; font-weight: 600; }
         .stMarkdown td { background-color: #0d1117 !important; color: #e6edf3 !important; border: 1px solid #21262d !important; padding: 8px 14px !important; }
         .stMarkdown tr:hover td { background-color: #161b22 !important; }
 
+        /* --- Images --- */
         .stImage { background-color: #ffffff; border-radius: 10px; padding: 8px; border: 1px solid #21262d; }
 
+        /* --- Badges --- */
         .pass-badge { background: linear-gradient(135deg, #238636, #2ea043); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
         .fail-badge { background: linear-gradient(135deg, #da3633, #f85149); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
 
+        /* --- Divider --- */
+        .stDivider { border-color: #21262d !important; }
+
+        /* --- Multiselect --- */
+        .stMultiSelect div[data-baseweb="select"] { background-color: #0d1117 !important; border-color: #30363d !important; }
+        .stMultiSelect div[data-baseweb="select"] * { color: #e6edf3 !important; }
+
+        /* --- Tooltips --- */
+        div[data-baseweb="tooltip"] { background-color: #161b22 !important; color: #e6edf3 !important; }
+
+        /* --- Scrollbar --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0d1117; }
         ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
