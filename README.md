@@ -131,6 +131,10 @@ ChemInfo/
 
 This application uses the **PubChem REST API** (PUG REST) for compound data retrieval. No API key is required. Please respect PubChem's usage policies and avoid excessive automated requests.
 
+## Caution
+
+> **This project was created using AI-assisted vibe coding.** While the code has been tested and verified to work, please use it with caution. Always validate results against trusted reference sources before using them for research, publication, or clinical purposes. The authors are not responsible for any inaccuracies in the calculated data.
+
 ## Notes
 
 - MRM collision energies are **estimated** using linear ramp models. Always optimize experimentally for your specific instrument.
