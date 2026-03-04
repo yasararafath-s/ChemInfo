@@ -53,545 +53,125 @@ st.set_page_config(
 )
 
 # ============================================================
-# THEME TOGGLE
+# CUSTOM CSS (auto-adapts to Streamlit's native theme)
 # ============================================================
-if "theme" not in st.session_state:
-    st.session_state.theme = "Dark"
+theme_css = """
+<style>
+    /* ===== SHARED STYLES (both themes) ===== */
 
-# Theme selector in sidebar (placed before other sidebar content)
-with st.sidebar:
-    st.session_state.theme = st.selectbox(
-        "Theme",
-        ["Light", "Dark"],
-        index=["Light", "Dark"].index(st.session_state.theme),
-        key="theme_selector",
-    )
+    /* --- Custom Headers --- */
+    .main-header {
+        font-size: 2.4rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.5px;
+    }
+    .sub-header {
+        font-size: 0.95rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        letter-spacing: 0.3px;
+        opacity: 0.65;
+    }
+    .section-header {
+        font-size: 1.3rem;
+        font-weight: 600;
+        padding-bottom: 6px;
+        margin-top: 1.5rem;
+    }
 
-is_dark = st.session_state.theme == "Dark"
+    /* --- Tabs --- */
+    .stTabs [data-baseweb="tab-list"] {
+        border-radius: 10px;
+        padding: 4px;
+        gap: 4px;
+    }
+    .stTabs [data-baseweb="tab-list"] button {
+        font-size: 1.0rem;
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 8px 16px;
+        border: none !important;
+    }
 
-# ============================================================
-# CUSTOM CSS (adapts to selected theme)
-# ============================================================
-if is_dark:
-    theme_css = """
-    <style>
-        /* ===== DARK THEME - Comprehensive Styling ===== */
+    /* --- Metrics --- */
+    div[data-testid="stMetric"] {
+        border-radius: 10px;
+        padding: 12px 16px;
+    }
+    div[data-testid="stMetric"] label {
+        font-size: 0.85rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-        /* --- Base App --- */
-        .stApp {
-            background-color: #0d1117;
-            color: #e6edf3;
-        }
+    /* --- DataFrames / Tables --- */
+    .stDataFrame, div[data-testid="stDataFrame"] {
+        border-radius: 10px;
+        overflow: hidden;
+    }
 
-        /* --- Custom Headers --- */
-        .main-header {
-            font-size: 2.4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 0.3rem;
-            letter-spacing: -0.5px;
-        }
-        .sub-header {
-            font-size: 0.95rem;
-            color: #8b949e;
-            text-align: center;
-            margin-bottom: 2rem;
-            letter-spacing: 0.3px;
-        }
-        .section-header {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #79c0ff;
-            border-bottom: 2px solid #1f6feb;
-            padding-bottom: 6px;
-            margin-top: 1.5rem;
-        }
+    /* --- Expanders --- */
+    div[data-testid="stExpander"] {
+        border-radius: 10px !important;
+        margin-bottom: 8px;
+    }
+    div[data-testid="stExpander"] details summary p {
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
 
-        /* --- Sidebar --- */
-        section[data-testid="stSidebar"] {
-            background-color: #161b22;
-            border-right: 1px solid #21262d;
-        }
-        section[data-testid="stSidebar"] * { color: #e6edf3 !important; }
-        section[data-testid="stSidebar"] .stSelectbox label,
-        section[data-testid="stSidebar"] .stRadio label,
-        section[data-testid="stSidebar"] .stTextInput label,
-        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] h4,
-        section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li,
-        section[data-testid="stSidebar"] span,
-        section[data-testid="stSidebar"] .stMarkdown { color: #e6edf3 !important; }
-        section[data-testid="stSidebar"] small,
-        section[data-testid="stSidebar"] .stCaption,
-        section[data-testid="stSidebar"] caption { color: #8b949e !important; }
-        section[data-testid="stSidebar"] hr { border-color: #30363d !important; }
+    /* --- Alert Boxes --- */
+    div[data-testid="stAlert"], div[role="alert"] {
+        border-radius: 10px !important;
+    }
 
-        /* --- Sidebar Inputs --- */
-        section[data-testid="stSidebar"] .stTextInput input,
-        section[data-testid="stSidebar"] .stSelectbox > div > div {
-            background-color: #0d1117 !important;
-            border-color: #30363d !important;
-            color: #e6edf3 !important;
-        }
+    /* --- Buttons --- */
+    .stFormSubmitButton > button {
+        border-radius: 8px !important;
+        font-weight: 600;
+    }
+    .stDownloadButton > button {
+        border-radius: 8px !important;
+        font-weight: 500;
+    }
 
-        /* --- Main Content Inputs --- */
-        .stTextInput input, .stTextArea textarea, .stNumberInput input {
-            background-color: #161b22 !important;
-            border: 1px solid #30363d !important;
-            color: #e6edf3 !important;
-            border-radius: 8px !important;
-        }
-        .stTextInput input:focus, .stTextArea textarea:focus {
-            border-color: #1f6feb !important;
-            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2) !important;
-        }
-        .stSelectbox > div > div {
-            background-color: #161b22 !important;
-            border-color: #30363d !important;
-            color: #e6edf3 !important;
-        }
+    /* --- Badges (theme-independent) --- */
+    .pass-badge {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .fail-badge {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
 
-        /* --- Tabs --- */
-        .stTabs [data-baseweb="tab-list"] {
-            background-color: #161b22;
-            border-radius: 10px;
-            padding: 4px;
-            gap: 4px;
-            border: 1px solid #21262d;
-        }
-        .stTabs [data-baseweb="tab-list"] button {
-            font-size: 1.0rem;
-            font-weight: 500;
-            color: #8b949e !important;
-            background-color: transparent;
-            border-radius: 8px;
-            padding: 8px 16px;
-            border: none !important;
-        }
-        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
-            background-color: #1f6feb !important;
-            color: #ffffff !important;
-            font-weight: 600;
-        }
-        .stTabs [data-baseweb="tab-list"] button:hover {
-            color: #e6edf3 !important;
-            background-color: #21262d;
-        }
+    /* --- Progress Bar --- */
+    .stProgress > div > div > div {
+        border-radius: 10px;
+    }
 
-        /* --- Metrics --- */
-        div[data-testid="stMetric"] {
-            background-color: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 10px;
-            padding: 12px 16px;
-        }
-        div[data-testid="stMetric"] label {
-            color: #8b949e !important;
-            font-size: 0.85rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-            color: #58a6ff !important;
-            font-weight: 700 !important;
-        }
+    /* --- Images (structure viewer) --- */
+    .stImage {
+        border-radius: 10px;
+        padding: 8px;
+    }
 
-        /* --- DataFrames / Tables --- */
-        .stDataFrame, div[data-testid="stDataFrame"] {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #21262d;
-        }
-        .stDataFrame [data-testid="glideDataEditor"],
-        div[data-testid="stDataFrame"] > div {
-            background-color: #0d1117 !important;
-        }
-
-        /* --- Expanders --- */
-        div[data-testid="stExpander"] {
-            background-color: #161b22;
-            border: 1px solid #21262d !important;
-            border-radius: 10px !important;
-            margin-bottom: 8px;
-        }
-        div[data-testid="stExpander"] details summary {
-            padding: 12px 16px;
-        }
-        div[data-testid="stExpander"] details summary p {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #e6edf3 !important;
-        }
-        div[data-testid="stExpander"] details > div {
-            border-top: 1px solid #21262d;
-        }
-
-        /* --- Info / Success / Warning / Error Boxes --- */
-        div[data-testid="stAlert"] {
-            border-radius: 10px !important;
-            border: none !important;
-        }
-        .stAlert > div[data-baseweb="notification"][kind="info"] {
-            background-color: rgba(31, 111, 235, 0.12) !important;
-            color: #79c0ff !important;
-        }
-        .stAlert > div[data-baseweb="notification"][kind="success"] {
-            background-color: rgba(63, 185, 80, 0.12) !important;
-            color: #56d364 !important;
-        }
-        .stAlert > div[data-baseweb="notification"][kind="warning"] {
-            background-color: rgba(210, 153, 34, 0.12) !important;
-            color: #e3b341 !important;
-        }
-        .stAlert > div[data-baseweb="notification"][kind="negative"] {
-            background-color: rgba(248, 81, 73, 0.12) !important;
-            color: #f85149 !important;
-        }
-        /* Streamlit info/success/warning/error direct styling */
-        div[role="alert"] {
-            border-radius: 10px !important;
-        }
-
-        /* --- Buttons --- */
-        .stButton > button {
-            background-color: #21262d !important;
-            color: #e6edf3 !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px !important;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        .stButton > button:hover {
-            background-color: #30363d !important;
-            border-color: #8b949e !important;
-        }
-        .stButton > button[kind="primary"],
-        .stFormSubmitButton > button {
-            background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
-            color: #ffffff !important;
-            border: none !important;
-            font-weight: 600;
-        }
-        .stFormSubmitButton > button:hover {
-            background: linear-gradient(135deg, #388bfd, #58a6ff) !important;
-        }
-
-        /* --- Download Buttons --- */
-        .stDownloadButton > button {
-            background-color: #161b22 !important;
-            color: #58a6ff !important;
-            border: 1px solid #1f6feb !important;
-            border-radius: 8px !important;
-            font-weight: 500;
-        }
-        .stDownloadButton > button:hover {
-            background-color: #1f6feb !important;
-            color: #ffffff !important;
-        }
-
-        /* --- Code Blocks --- */
-        .stCode, code, pre {
-            background-color: #161b22 !important;
-            border: 1px solid #21262d !important;
-            border-radius: 8px !important;
-            color: #e6edf3 !important;
-        }
-
-        /* --- Markdown Links --- */
-        a { color: #58a6ff !important; }
-        a:hover { color: #79c0ff !important; text-decoration: underline; }
-
-        /* --- Dividers --- */
-        hr { border-color: #21262d !important; }
-
-        /* --- Progress Bar --- */
-        .stProgress > div > div > div {
-            background: linear-gradient(90deg, #1f6feb, #a371f7) !important;
-            border-radius: 10px;
-        }
-        .stProgress > div > div {
-            background-color: #21262d !important;
-            border-radius: 10px;
-        }
-
-        /* --- File Uploader --- */
-        div[data-testid="stFileUploader"] {
-            background-color: #161b22;
-            border: 2px dashed #30363d !important;
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        /* --- Markdown Tables (Welcome screen) --- */
-        .stMarkdown table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        .stMarkdown th {
-            background-color: #161b22 !important;
-            color: #58a6ff !important;
-            border: 1px solid #30363d !important;
-            padding: 10px 14px !important;
-            font-weight: 600;
-        }
-        .stMarkdown td {
-            background-color: #0d1117 !important;
-            color: #e6edf3 !important;
-            border: 1px solid #21262d !important;
-            padding: 8px 14px !important;
-        }
-        .stMarkdown tr:hover td {
-            background-color: #161b22 !important;
-        }
-
-        /* --- Captions --- */
-        .stCaption, caption, small {
-            color: #8b949e !important;
-        }
-
-        /* --- Images (structure viewer) --- */
-        .stImage {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 8px;
-            border: 1px solid #21262d;
-        }
-
-        /* --- JSON viewer --- */
-        div[data-testid="stJson"] {
-            background-color: #161b22 !important;
-            border: 1px solid #21262d !important;
-            border-radius: 10px !important;
-        }
-
-        /* --- Spinner --- */
-        .stSpinner > div { color: #58a6ff !important; }
-
-        /* --- Badges --- */
-        .pass-badge {
-            background: linear-gradient(135deg, #238636, #2ea043);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-        .fail-badge {
-            background: linear-gradient(135deg, #da3633, #f85149);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        /* --- Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0d1117; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #484f58; }
-    </style>
-    """
-else:
-    theme_css = """
-    <style>
-        /* ===== LIGHT THEME - Comprehensive Styling ===== */
-
-        /* --- Base App --- */
-        .stApp {
-            background-color: #ffffff;
-            color: #1f2937;
-        }
-
-        /* --- Custom Headers --- */
-        .main-header {
-            font-size: 2.4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1E3A5F 0%, #2563eb 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 0.3rem;
-            letter-spacing: -0.5px;
-        }
-        .sub-header {
-            font-size: 0.95rem;
-            color: #6b7280;
-            text-align: center;
-            margin-bottom: 2rem;
-            letter-spacing: 0.3px;
-        }
-        .section-header {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #1E3A5F;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 6px;
-            margin-top: 1.5rem;
-        }
-
-        /* --- Sidebar --- */
-        section[data-testid="stSidebar"] {
-            background-color: #f8fafc;
-            border-right: 1px solid #e5e7eb;
-        }
-        section[data-testid="stSidebar"] * { color: #1f2937 !important; }
-        section[data-testid="stSidebar"] .stSelectbox label,
-        section[data-testid="stSidebar"] .stRadio label,
-        section[data-testid="stSidebar"] .stTextInput label,
-        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] h4,
-        section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li,
-        section[data-testid="stSidebar"] span,
-        section[data-testid="stSidebar"] .stMarkdown { color: #1f2937 !important; }
-        section[data-testid="stSidebar"] small,
-        section[data-testid="stSidebar"] .stCaption,
-        section[data-testid="stSidebar"] caption { color: #6b7280 !important; }
-        section[data-testid="stSidebar"] hr { border-color: #e5e7eb !important; }
-
-        /* --- Tabs --- */
-        .stTabs [data-baseweb="tab-list"] {
-            background-color: #f1f5f9;
-            border-radius: 10px;
-            padding: 4px;
-            gap: 4px;
-            border: 1px solid #e2e8f0;
-        }
-        .stTabs [data-baseweb="tab-list"] button {
-            font-size: 1.0rem;
-            font-weight: 500;
-            color: #64748b !important;
-            background-color: transparent;
-            border-radius: 8px;
-            padding: 8px 16px;
-            border: none !important;
-        }
-        .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
-            background-color: #2563eb !important;
-            color: #ffffff !important;
-            font-weight: 600;
-        }
-        .stTabs [data-baseweb="tab-list"] button:hover {
-            color: #1f2937 !important;
-            background-color: #e2e8f0;
-        }
-
-        /* --- Metrics --- */
-        div[data-testid="stMetric"] {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px 16px;
-        }
-        div[data-testid="stMetric"] label {
-            color: #6b7280 !important;
-            font-size: 0.85rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-            color: #1E3A5F !important;
-            font-weight: 700 !important;
-        }
-
-        /* --- DataFrames / Tables --- */
-        .stDataFrame, div[data-testid="stDataFrame"] {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* --- Expanders --- */
-        div[data-testid="stExpander"] {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 10px !important;
-            margin-bottom: 8px;
-        }
-        div[data-testid="stExpander"] details summary p {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #1f2937 !important;
-        }
-        div[data-testid="stExpander"] details > div {
-            border-top: 1px solid #e2e8f0;
-        }
-
-        /* --- Buttons --- */
-        .stFormSubmitButton > button {
-            background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 8px !important;
-            font-weight: 600;
-        }
-        .stFormSubmitButton > button:hover {
-            background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
-        }
-
-        /* --- Download Buttons --- */
-        .stDownloadButton > button {
-            background-color: #f8fafc !important;
-            color: #2563eb !important;
-            border: 1px solid #3b82f6 !important;
-            border-radius: 8px !important;
-            font-weight: 500;
-        }
-        .stDownloadButton > button:hover {
-            background-color: #2563eb !important;
-            color: #ffffff !important;
-        }
-
-        /* --- Progress Bar --- */
-        .stProgress > div > div > div {
-            background: linear-gradient(90deg, #2563eb, #7c3aed) !important;
-            border-radius: 10px;
-        }
-
-        /* --- Images (structure viewer) --- */
-        .stImage {
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* --- Markdown Tables --- */
-        .stMarkdown th {
-            background-color: #f1f5f9 !important;
-            color: #1E3A5F !important;
-            border: 1px solid #e2e8f0 !important;
-            padding: 10px 14px !important;
-            font-weight: 600;
-        }
-        .stMarkdown td {
-            border: 1px solid #e2e8f0 !important;
-            padding: 8px 14px !important;
-        }
-        .stMarkdown tr:hover td {
-            background-color: #f8fafc !important;
-        }
-
-        /* --- Badges --- */
-        .pass-badge {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-        .fail-badge {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-    </style>
-    """
+    /* --- Markdown Tables --- */
+    .stMarkdown table { border-collapse: collapse; width: 100%; }
+    .stMarkdown th { padding: 10px 14px !important; font-weight: 600; }
+    .stMarkdown td { padding: 8px 14px !important; }
+</style>
+"""
 
 st.markdown(theme_css, unsafe_allow_html=True)
 
@@ -627,7 +207,7 @@ with st.sidebar:
                 "Enter compound name:",
                 placeholder="e.g., Aspirin, Caffeine, Ibuprofen",
             )
-            analyze_btn = st.form_submit_button(">> Analyze", type="primary", use_container_width=True)
+            analyze_btn = st.form_submit_button(">> Analyze", type="primary", width="stretch")
         st.caption("Type a name and press Enter or click Analyze")
 
     elif input_mode == "CAS Number":
@@ -636,7 +216,7 @@ with st.sidebar:
                 "Enter CAS Number:",
                 placeholder="e.g., 50-78-2, 58-08-2, 103-90-2",
             )
-            analyze_btn = st.form_submit_button(">> Analyze", type="primary", use_container_width=True)
+            analyze_btn = st.form_submit_button(">> Analyze", type="primary", width="stretch")
         st.caption("Enter a CAS Registry Number (e.g., 50-78-2 for Aspirin)")
 
     elif input_mode == "SMILES String":
@@ -649,7 +229,7 @@ with st.sidebar:
                 "Compound name (optional):",
                 placeholder="e.g., Aspirin",
             )
-            analyze_btn = st.form_submit_button(">> Analyze", type="primary", use_container_width=True)
+            analyze_btn = st.form_submit_button(">> Analyze", type="primary", width="stretch")
         st.caption("Type SMILES and press Enter or click Analyze")
 
     elif input_mode == "Batch Upload (CSV/Excel)":
@@ -665,7 +245,7 @@ with st.sidebar:
                 else:
                     batch_df = pd.read_excel(uploaded_file)
                 st.success(f"Loaded {len(batch_df)} rows")
-                st.dataframe(batch_df.head(), use_container_width=True)
+                st.dataframe(batch_df.head(), width="stretch")
 
                 # Select column
                 col_options = batch_df.columns.tolist()
@@ -681,7 +261,7 @@ with st.sidebar:
                 st.error(f"Error reading file: {e}")
                 batch_df = None
 
-        analyze_btn = st.button(">> Analyze", type="primary", use_container_width=True)
+        analyze_btn = st.button(">> Analyze", type="primary", width="stretch")
 
     st.divider()
     st.markdown("### About")
@@ -818,7 +398,7 @@ def display_compound_report(result):
     with col_struct:
         img = generate_structure_image(mol, size=(500, 400))
         if img:
-            st.image(img, caption=f"2D Structure of {name}", use_container_width=True)
+            st.image(img, caption=f"2D Structure of {name}", width="stretch")
 
         st.code(smiles, language=None)
 
@@ -876,7 +456,8 @@ def display_compound_report(result):
              if k not in ["InChI", "InChIKey"]]
         )
         prop_df = pd.DataFrame(prop_rows)
-        st.dataframe(prop_df, use_container_width=True, hide_index=True, height=500)
+        prop_df["Value"] = prop_df["Value"].astype(str)
+        st.dataframe(prop_df, width="stretch", hide_index=True, height=500)
 
         # InChI in expander (they're long)
         with st.expander("InChI & InChIKey"):
@@ -895,7 +476,7 @@ def display_compound_report(result):
                 criteria_df = pd.DataFrame(
                     [{"Criterion": k, "Result": v} for k, v in criteria.items()]
                 )
-                st.dataframe(criteria_df, use_container_width=True, hide_index=True)
+                st.dataframe(criteria_df, width="stretch", hide_index=True)
 
                 if "Violations" in rule_data:
                     st.markdown(f"**Violations:** {rule_data['Violations']}")
@@ -918,7 +499,7 @@ def display_compound_report(result):
                 pos_df = pd.DataFrame(
                     [{"Adduct": k, "m/z": v} for k, v in pos_adducts.items()]
                 )
-                st.dataframe(pos_df, use_container_width=True, hide_index=True)
+                st.dataframe(pos_df, width="stretch", hide_index=True)
 
             st.markdown("#### Negative Mode Adducts")
             neg_adducts = mrm.get("Negative Mode Adducts", {})
@@ -926,7 +507,7 @@ def display_compound_report(result):
                 neg_df = pd.DataFrame(
                     [{"Adduct": k, "m/z": v} for k, v in neg_adducts.items()]
                 )
-                st.dataframe(neg_df, use_container_width=True, hide_index=True)
+                st.dataframe(neg_df, width="stretch", hide_index=True)
 
             # Predicted fragments
             st.markdown("#### Predicted Fragment Ions (Neutral Losses)")
@@ -939,7 +520,7 @@ def display_compound_report(result):
                     pf_df = pd.DataFrame(
                         [{"Fragment": k, "m/z": v} for k, v in pos_frags.items()]
                     )
-                    st.dataframe(pf_df, use_container_width=True, hide_index=True)
+                    st.dataframe(pf_df, width="stretch", hide_index=True)
                 else:
                     st.info("No predicted fragments in positive mode.")
 
@@ -950,7 +531,7 @@ def display_compound_report(result):
                     nf_df = pd.DataFrame(
                         [{"Fragment": k, "m/z": v} for k, v in neg_frags.items()]
                     )
-                    st.dataframe(nf_df, use_container_width=True, hide_index=True)
+                    st.dataframe(nf_df, width="stretch", hide_index=True)
                 else:
                     st.info("No predicted fragments in negative mode.")
 
@@ -959,7 +540,7 @@ def display_compound_report(result):
             transitions = mrm.get("Suggested MRM Transitions", [])
             if transitions:
                 trans_df = pd.DataFrame(transitions)
-                st.dataframe(trans_df, use_container_width=True, hide_index=True)
+                st.dataframe(trans_df, width="stretch", hide_index=True)
                 st.caption("Note: Collision energies are estimated. Optimize experimentally for your instrument.")
             else:
                 st.info("No MRM transitions could be predicted.")
@@ -977,7 +558,7 @@ def display_compound_report(result):
 
         if func_groups:
             fg_df = pd.DataFrame(func_groups)
-            st.dataframe(fg_df, use_container_width=True, hide_index=True)
+            st.dataframe(fg_df, width="stretch", hide_index=True)
         else:
             st.info("No common functional groups detected.")
 
@@ -1059,7 +640,7 @@ def display_compound_report(result):
             data=csv_data,
             file_name=f"{name.replace(' ', '_')}_properties.csv",
             mime="text/csv",
-            use_container_width=True,
+            width="stretch",
         )
 
         # Export MRM transitions
@@ -1072,7 +653,7 @@ def display_compound_report(result):
                 data=mrm_csv,
                 file_name=f"{name.replace(' ', '_')}_MRM_transitions.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
             )
 
         # Export structure image
@@ -1085,7 +666,7 @@ def display_compound_report(result):
                 data=buf.getvalue(),
                 file_name=f"{name.replace(' ', '_')}_structure.png",
                 mime="image/png",
-                use_container_width=True,
+                width="stretch",
             )
 
 
@@ -1124,71 +705,95 @@ if analyze_btn:
             st.markdown(f'<p class="section-header">Batch Analysis: {len(compounds)} compounds</p>',
                         unsafe_allow_html=True)
 
-            progress_bar = st.progress(0)
-            status_text = st.empty()
+            # Check if we already have cached results for these exact compounds
+            cache_key = tuple(compounds)
+            need_analysis = (
+                "batch_cache_key" not in st.session_state
+                or st.session_state.batch_cache_key != cache_key
+            )
 
-            all_results = []
-            all_mrm = []
-            failed = []
+            if need_analysis:
+                progress_bar = st.progress(0)
+                status_text = st.empty()
 
-            for i, compound in enumerate(compounds):
-                status_text.text(f"Analyzing {i+1}/{len(compounds)}: {compound}")
-                progress_bar.progress((i + 1) / len(compounds))
+                all_results = []
+                all_mrm = []
+                batch_reports = {}  # Cache full reports keyed by compound name
+                failed = []
 
-                try:
-                    if input_type_col == "Compound Names":
-                        result = analyze_single_compound(name=compound)
-                    else:
-                        result = analyze_single_compound(smiles=compound)
+                for i, compound in enumerate(compounds):
+                    status_text.text(f"Analyzing {i+1}/{len(compounds)}: {compound}")
+                    progress_bar.progress((i + 1) / len(compounds))
 
-                    if result and result.get("properties"):
-                        row = {"Compound": compound, "SMILES": result["smiles"]}
-                        row.update(result["properties"])
+                    try:
+                        if input_type_col == "Compound Names":
+                            result = analyze_single_compound(name=compound)
+                        else:
+                            result = analyze_single_compound(smiles=compound)
 
-                        # Add MRM data
-                        mrm = result.get("mrm", {})
-                        if mrm:
-                            row["Monoisotopic Mass"] = mrm.get("Monoisotopic Mass")
-                            pos_adducts = mrm.get("Positive Mode Adducts", {})
-                            if "[M+H]+" in pos_adducts:
-                                row["[M+H]+ (m/z)"] = pos_adducts["[M+H]+"]
-                            if "[M+Na]+" in pos_adducts:
-                                row["[M+Na]+ (m/z)"] = pos_adducts["[M+Na]+"]
-                            neg_adducts = mrm.get("Negative Mode Adducts", {})
-                            if "[M-H]-" in neg_adducts:
-                                row["[M-H]- (m/z)"] = neg_adducts["[M-H]-"]
+                        if result and result.get("properties"):
+                            row = {"Compound": compound, "CAS Number": result.get("cas_number", ""), "SMILES": result["smiles"]}
+                            row.update(result["properties"])
 
-                            # Add top transitions
-                            transitions = mrm.get("Suggested MRM Transitions", [])
-                            for j, t in enumerate(transitions[:3]):
-                                row[f"MRM Transition {j+1}"] = t.get("Transition", "")
-                                row[f"CE {j+1} (eV)"] = t.get("Est. CE (eV)", "")
+                            # Add MRM data
+                            mrm = result.get("mrm", {})
+                            if mrm:
+                                row["Monoisotopic Mass"] = mrm.get("Monoisotopic Mass")
+                                pos_adducts = mrm.get("Positive Mode Adducts", {})
+                                if "[M+H]+" in pos_adducts:
+                                    row["[M+H]+ (m/z)"] = pos_adducts["[M+H]+"]
+                                if "[M+Na]+" in pos_adducts:
+                                    row["[M+Na]+ (m/z)"] = pos_adducts["[M+Na]+"]
+                                neg_adducts = mrm.get("Negative Mode Adducts", {})
+                                if "[M-H]-" in neg_adducts:
+                                    row["[M-H]- (m/z)"] = neg_adducts["[M-H]-"]
 
-                        all_results.append(row)
+                                # Add top transitions
+                                transitions = mrm.get("Suggested MRM Transitions", [])
+                                for j, t in enumerate(transitions[:3]):
+                                    row[f"MRM Transition {j+1}"] = t.get("Transition", "")
+                                    row[f"CE {j+1} (eV)"] = t.get("Est. CE (eV)", "")
 
-                        # Collect MRM transitions separately
-                        for t in mrm.get("Suggested MRM Transitions", []):
-                            t_row = {"Compound": compound, **t}
-                            all_mrm.append(t_row)
+                            all_results.append(row)
+                            batch_reports[compound] = result  # Cache full report
 
-                    else:
+                            # Collect MRM transitions separately
+                            for t in mrm.get("Suggested MRM Transitions", []):
+                                t_row = {"Compound": compound, **t}
+                                all_mrm.append(t_row)
+
+                        else:
+                            failed.append(compound)
+
+                    except Exception as e:
                         failed.append(compound)
 
-                except Exception as e:
-                    failed.append(compound)
+                    # Rate limit PubChem requests
+                    time.sleep(0.3)
 
-                # Rate limit PubChem requests
-                time.sleep(0.3)
+                progress_bar.empty()
+                status_text.empty()
 
-            progress_bar.empty()
-            status_text.empty()
+                # Save everything to session_state
+                st.session_state.batch_cache_key = cache_key
+                st.session_state.batch_results = all_results
+                st.session_state.batch_mrm = all_mrm
+                st.session_state.batch_reports = batch_reports
+                st.session_state.batch_failed = failed
+                st.session_state.batch_compounds = compounds
+
+            # Use cached results (either just computed or from previous run)
+            all_results = st.session_state.get("batch_results", [])
+            all_mrm = st.session_state.get("batch_mrm", [])
+            batch_reports = st.session_state.get("batch_reports", {})
+            failed = st.session_state.get("batch_failed", [])
 
             # Display results
             if all_results:
                 st.success(f"Successfully analyzed {len(all_results)} / {len(compounds)} compounds")
 
                 results_df = pd.DataFrame(all_results)
-                st.dataframe(results_df, use_container_width=True, hide_index=True)
+                st.dataframe(results_df, width="stretch", hide_index=True)
 
                 # Download buttons
                 col_dl1, col_dl2 = st.columns(2)
@@ -1199,7 +804,7 @@ if analyze_btn:
                         data=csv,
                         file_name="batch_compound_properties.csv",
                         mime="text/csv",
-                        use_container_width=True,
+                        width="stretch",
                     )
 
                 with col_dl2:
@@ -1211,25 +816,22 @@ if analyze_btn:
                             data=mrm_csv,
                             file_name="batch_MRM_transitions.csv",
                             mime="text/csv",
-                            use_container_width=True,
+                            width="stretch",
                         )
 
-                # Show individual reports (without outer expander to avoid nesting)
+                # Show individual reports using cached data (no re-analysis!)
                 st.markdown("---")
                 st.markdown("### Detailed Reports")
-                selected_compound = st.selectbox(
-                    "Select compound for detailed view:",
-                    compounds[:20],
-                    index=0,
-                    key="batch_detail_select",
-                )
-                if selected_compound:
-                    if input_type_col == "Compound Names":
-                        r = analyze_single_compound(name=selected_compound)
-                    else:
-                        r = analyze_single_compound(smiles=selected_compound)
-                    if r:
-                        display_compound_report(r)
+                available_compounds = list(batch_reports.keys())
+                if available_compounds:
+                    selected_compound = st.selectbox(
+                        "Select compound for detailed view:",
+                        available_compounds,
+                        index=0,
+                        key="batch_detail_select",
+                    )
+                    if selected_compound and selected_compound in batch_reports:
+                        display_compound_report(batch_reports[selected_compound])
 
             if failed:
                 st.warning(f"Failed to analyze: {', '.join(failed)}")
