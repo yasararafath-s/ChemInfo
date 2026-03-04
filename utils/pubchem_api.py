@@ -264,3 +264,253 @@ def get_cas_number(cid: int):
         return None
     except Exception:
         return None
+
+
+# ============================================================
+# COMPOUND CLASSIFICATION (Pharmacological & Chemical)
+# ============================================================
+
+def _walk_sections(section, target_heading):
+    """Recursively walk PUG View section tree to find sections by heading."""
+    results = []
+    heading = section.get("TOCHeading", "")
+    if heading.lower() == target_heading.lower():
+        results.append(section)
+    for child in section.get("Section", []):
+        results.extend(_walk_sections(child, target_heading))
+    return results
+
+
+def _extract_string_values(section):
+    """Extract all string values from a PUG View section's Information list."""
+    values = []
+    for info in section.get("Information", []):
+        val = info.get("Value", {})
+        for sv in val.get("StringWithMarkup", []):
+            text = sv.get("String", "").strip()
+            if text:
+                values.append(text)
+    return values
+
+
+def _parse_fda_classes(info_list):
+    """Parse FDA Pharmacological Classification entries by tag type.
+
+    FDA entries have format: "Tag [CODE] - Value"
+    Tags: [EPC] Established Pharmacologic Class, [MoA] Mechanism of Action,
+          [PE] Physiologic Effect, [CS] Chemical Structure
+    """
+    epc = []
+    moa = []
+    pe = []
+    cs = []
+    seen = set()
+
+    for info in info_list:
+        if info.get("Name") != "Pharmacological Classes":
+            continue
+        for sv in info.get("Value", {}).get("StringWithMarkup", []):
+            text = sv.get("String", "").strip()
+            if not text or ";" in text:
+                # Skip combined entries (they repeat individual ones)
+                continue
+            if text in seen:
+                continue
+            seen.add(text)
+
+            if "[EPC]" in text:
+                label = text.split(" - ", 1)[-1].strip() if " - " in text else text
+                epc.append(label)
+            elif "[MoA]" in text:
+                label = text.split(" - ", 1)[-1].strip() if " - " in text else text
+                moa.append(label)
+            elif "[PE]" in text:
+                label = text.split(" - ", 1)[-1].strip() if " - " in text else text
+                pe.append(label)
+            elif "[CS]" in text:
+                label = text.split(" - ", 1)[-1].strip() if " - " in text else text
+                cs.append(label)
+
+    return epc, moa, pe, cs
+
+
+def _parse_pharmacology_data(data):
+    """Parse Pharmacology and Biochemistry heading data from PUG View."""
+    result = {
+        "pharmacological_group": "",
+        "pharmacological_subgroups": [],
+        "mechanism_of_action": "",
+        "physiologic_effects": [],
+        "atc_codes": [],
+        "mesh_terms": [],
+    }
+
+    try:
+        record = data.get("Record", {})
+        sections = record.get("Section", [])
+
+        for top_section in sections:
+            # --- FDA Pharmacological Classification ---
+            for s in _walk_sections(top_section, "FDA Pharmacological Classification"):
+                info_list = s.get("Information", [])
+                epc, moa, pe, cs = _parse_fda_classes(info_list)
+
+                if epc:
+                    result["pharmacological_group"] = epc[0]
+                    if len(epc) > 1:
+                        result["pharmacological_subgroups"].extend(epc[1:])
+                if moa:
+                    result["mechanism_of_action"] = moa[0]
+                if pe:
+                    result["physiologic_effects"] = pe
+                if cs:
+                    result["pharmacological_subgroups"].extend(cs)
+
+            # --- MeSH Pharmacological Classification ---
+            # Use the Info "Name" field (short label) not the description
+            for s in _walk_sections(top_section, "MeSH Pharmacological Classification"):
+                for info in s.get("Information", []):
+                    name = info.get("Name", "").strip()
+                    if name and name not in result["mesh_terms"]:
+                        result["mesh_terms"].append(name)
+
+            # If no FDA group, try MeSH terms as fallback
+            if not result["pharmacological_group"] and result["mesh_terms"]:
+                result["pharmacological_group"] = result["mesh_terms"][0]
+                if len(result["mesh_terms"]) > 1:
+                    result["pharmacological_subgroups"] = result["mesh_terms"][1:]
+
+            # --- ATC Code ---
+            atc_pattern = re.compile(r"^[A-Z]\d{2}[A-Z]{2}\d{2}$")
+            for s in _walk_sections(top_section, "ATC Code"):
+                for info in s.get("Information", []):
+                    for sv in info.get("Value", {}).get("StringWithMarkup", []):
+                        code = sv.get("String", "").strip()
+                        if not code:
+                            continue
+                        # Keep actual ATC codes (e.g., N02BA01) and
+                        # combined codes (e.g., "B01AC06; N02BA01")
+                        # and descriptive codes (e.g., "N02BA01 - Acetylsalicylic acid")
+                        if atc_pattern.match(code):
+                            # Only add bare code if no descriptive version exists
+                            pass  # Will be handled by descriptive version
+                        elif " - " in code and atc_pattern.match(code.split(" - ")[0].strip()):
+                            if code not in result["atc_codes"]:
+                                result["atc_codes"].append(code)
+
+            # --- Mechanism of Action (detailed text) ---
+            if not result["mechanism_of_action"]:
+                for s in _walk_sections(top_section, "Mechanism of Action"):
+                    for info in s.get("Information", []):
+                        for sv in info.get("Value", {}).get("StringWithMarkup", []):
+                            text = sv.get("String", "").strip()
+                            if text and len(text) > 20:
+                                # Take first meaningful description
+                                result["mechanism_of_action"] = text[:300]
+                                break
+                        if result["mechanism_of_action"]:
+                            break
+
+    except Exception:
+        pass
+
+    return result
+
+
+def _parse_chemical_classes(data):
+    """Parse Chemical Classification heading data from PUG View."""
+    result = {
+        "chemical_group": "",
+        "chemical_subgroups": [],
+    }
+
+    try:
+        record = data.get("Record", {})
+        sections = record.get("Section", [])
+
+        all_classes = []
+        for top_section in sections:
+            for s in _walk_sections(top_section, "Chemical Classes"):
+                vals = _extract_string_values(s)
+                all_classes.extend(vals)
+
+            # Also check "Classification" heading
+            if not all_classes:
+                for s in _walk_sections(top_section, "Classification"):
+                    vals = _extract_string_values(s)
+                    all_classes.extend(vals)
+
+            # Try ChEBI Ontology as fallback
+            if not all_classes:
+                for s in _walk_sections(top_section, "ChEBI Ontology"):
+                    vals = _extract_string_values(s)
+                    all_classes.extend(vals)
+
+        if all_classes:
+            result["chemical_group"] = all_classes[0]
+            if len(all_classes) > 1:
+                result["chemical_subgroups"] = all_classes[1:]
+
+    except Exception:
+        pass
+
+    return result
+
+
+def get_compound_classification(cid: int):
+    """Get pharmacological and chemical classification for a compound.
+
+    Makes two targeted PUG View API requests:
+    1. Pharmacology and Biochemistry → FDA class, MeSH, ATC codes
+    2. Chemical and Physical Properties → Chemical classes
+
+    Returns a dict with classification data, or empty dict on failure.
+    """
+    classification = {
+        "pharmacological_group": "",
+        "pharmacological_subgroups": [],
+        "chemical_group": "",
+        "chemical_subgroups": [],
+        "atc_codes": [],
+        "mechanism_of_action": "",
+        "physiologic_effects": [],
+        "mesh_terms": [],
+    }
+
+    if not cid:
+        return classification
+
+    # Request 1: Pharmacology and Biochemistry
+    try:
+        url = f"{PUBCHEM_VIEW}/data/compound/{cid}/JSON?heading=Pharmacology+and+Biochemistry"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            pharma_data = _parse_pharmacology_data(resp.json())
+            classification.update(pharma_data)
+    except Exception:
+        pass
+
+    # Request 2: Chemical and Physical Properties (for chemical classes)
+    try:
+        url = f"{PUBCHEM_VIEW}/data/compound/{cid}/JSON?heading=Chemical+and+Physical+Properties"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            chem_data = _parse_chemical_classes(resp.json())
+            classification.update(chem_data)
+    except Exception:
+        pass
+
+    # If chemical classes still empty, try Names and Identifiers section
+    if not classification["chemical_group"]:
+        try:
+            url = f"{PUBCHEM_VIEW}/data/compound/{cid}/JSON?heading=Names+and+Identifiers"
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                chem_data = _parse_chemical_classes(resp.json())
+                if chem_data.get("chemical_group"):
+                    classification["chemical_group"] = chem_data["chemical_group"]
+                    classification["chemical_subgroups"] = chem_data.get("chemical_subgroups", [])
+        except Exception:
+            pass
+
+    return classification

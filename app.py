@@ -35,6 +35,7 @@ try:
         get_compound_by_cid,
         get_cas_number,
         is_cas_number,
+        get_compound_classification,
     )
 except Exception as e:
     st.error(f"Failed to import dependencies: {e}")
@@ -450,12 +451,15 @@ def analyze_single_compound(name=None, smiles=None, cas=None):
             inchikey=inchikey,
             cas_number=result["cas_number"],
         )
+        # Classification data (pharmacological + chemical)
+        result["classification"] = get_compound_classification(cid)
     else:
         result["description"] = None
         result["synonyms"] = []
         result["links"] = {}
         result["cas_number"] = cas if cas else None
         result["external_refs"] = {}
+        result["classification"] = {}
 
     return result
 
@@ -522,8 +526,10 @@ def display_compound_report(result):
                 st.write(", ".join(synonyms))
 
     # ---- TABS ----
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    classification = result.get("classification", {})
+    tab1, tab_class, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "Properties",
+        "Classification",
         "Drug-Likeness",
         "MRM / Mass Spec",
         "Functional Groups",
@@ -551,6 +557,69 @@ def display_compound_report(result):
         with st.expander("InChI & InChIKey"):
             st.text(f"InChI:    {props.get('InChI', 'N/A')}")
             st.text(f"InChIKey: {props.get('InChIKey', 'N/A')}")
+
+    # ---- TAB: Classification ----
+    with tab_class:
+        st.markdown('<p class="section-header">Compound Classification</p>', unsafe_allow_html=True)
+
+        has_pharma = classification.get("pharmacological_group") or classification.get("mechanism_of_action") or classification.get("atc_codes")
+        has_chem = classification.get("chemical_group") or classification.get("chemical_subgroups")
+
+        if has_pharma or has_chem:
+            col_pharma, col_chem = st.columns(2)
+
+            # ---- Left column: Pharmacological ----
+            with col_pharma:
+                st.markdown("#### Pharmacological Classification")
+
+                pharma_group = classification.get("pharmacological_group", "")
+                if pharma_group:
+                    st.metric("Pharmacological Class", pharma_group)
+                else:
+                    st.metric("Pharmacological Class", "Not available")
+
+                moa = classification.get("mechanism_of_action", "")
+                if moa:
+                    st.metric("Mechanism of Action", moa)
+
+                # Physiologic effects
+                effects = classification.get("physiologic_effects", [])
+                if effects:
+                    with st.expander(f"Physiologic Effects ({len(effects)})"):
+                        for eff in effects:
+                            st.markdown(f"- {eff}")
+
+                # MeSH / FDA subgroups
+                subgroups = classification.get("pharmacological_subgroups", [])
+                if subgroups:
+                    with st.expander(f"Subgroups / MeSH Terms ({len(subgroups)})"):
+                        for sg in subgroups:
+                            st.markdown(f"- {sg}")
+
+                # ATC Codes
+                atc = classification.get("atc_codes", [])
+                if atc:
+                    with st.expander(f"ATC Codes ({len(atc)})"):
+                        for code in atc:
+                            st.markdown(f"- `{code}`")
+
+            # ---- Right column: Chemical ----
+            with col_chem:
+                st.markdown("#### Chemical Classification")
+
+                chem_group = classification.get("chemical_group", "")
+                if chem_group:
+                    st.metric("Chemical Class", chem_group)
+                else:
+                    st.metric("Chemical Class", "Not available")
+
+                chem_subs = classification.get("chemical_subgroups", [])
+                if chem_subs:
+                    with st.expander(f"Chemical Subclasses ({len(chem_subs)})"):
+                        for cs in chem_subs:
+                            st.markdown(f"- {cs}")
+        else:
+            st.info("No classification data available for this compound. Classification data is typically available for approved drugs and well-studied compounds.")
 
     # ---- TAB 2: Drug-Likeness ----
     with tab2:
@@ -713,6 +782,14 @@ def display_compound_report(result):
         if cas_number:
             export_data["CAS Number"] = cas_number
         export_data.update(props)
+
+        # Add classification to export
+        if classification:
+            export_data["Pharmacological Group"] = classification.get("pharmacological_group", "")
+            export_data["Chemical Class"] = classification.get("chemical_group", "")
+            export_data["ATC Codes"] = "; ".join(classification.get("atc_codes", []))
+            export_data["Mechanism of Action"] = classification.get("mechanism_of_action", "")
+
         if mrm:
             export_data["Monoisotopic Mass"] = mrm.get("Monoisotopic Mass")
             for adduct, mz in mrm.get("Positive Mode Adducts", {}).items():
@@ -823,6 +900,13 @@ if analyze_btn:
                         if result and result.get("properties"):
                             row = {"Compound": compound, "CAS Number": result.get("cas_number", ""), "SMILES": result["smiles"]}
                             row.update(result["properties"])
+
+                            # Add classification columns
+                            cls = result.get("classification", {})
+                            row["Pharmacological Group"] = cls.get("pharmacological_group", "")
+                            row["Chemical Class"] = cls.get("chemical_group", "")
+                            row["ATC Codes"] = "; ".join(cls.get("atc_codes", []))
+                            row["Mechanism of Action"] = cls.get("mechanism_of_action", "")
 
                             mrm = result.get("mrm", {})
                             if mrm:
