@@ -167,6 +167,21 @@ else:
             border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin-top: 1.5rem; }
 
         section[data-testid="stSidebar"] { background-color: #f8fafc; border-right: 1px solid #e5e7eb; }
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 { color: #1E3A5F !important; }
+        section[data-testid="stSidebar"] label { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] p { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] span { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] .stRadio label span { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] .stCaption p { color: #6b7280 !important; }
+        section[data-testid="stSidebar"] .stMarkdown { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] input { color: #1f2937 !important; background-color: #ffffff !important; }
+        section[data-testid="stSidebar"] .stSelectbox label,
+        section[data-testid="stSidebar"] .stRadio label,
+        section[data-testid="stSidebar"] .stTextInput label { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #ffffff; border-color: #cbd5e1 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] span { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] .stAlert p { color: #1f2937 !important; }
 
         .stTabs [data-baseweb="tab-list"] {
             background-color: #f1f5f9; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #e2e8f0;
@@ -214,6 +229,16 @@ else:
 
         .pass-badge { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
         .fail-badge { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+
+        /* Force light-mode text colors on main content */
+        .stApp p, .stApp span, .stApp label, .stApp li { color: #1f2937; }
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #1E3A5F; }
+        .stApp .stMarkdown { color: #1f2937; }
+        .stApp code { color: #1f2937; background-color: #f1f5f9; }
+        .stApp a { color: #2563eb !important; }
+        .stApp a:hover { color: #1d4ed8 !important; }
+        .stApp .stSelectbox label { color: #1f2937 !important; }
+        .stApp hr { border-color: #e2e8f0 !important; }
     </style>
     """
 
