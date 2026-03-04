@@ -26,11 +26,15 @@ try:
     from utils.mrm_calculator import calculate_mrm_data
     from utils.pubchem_api import (
         search_compound_by_name,
+        search_compound_by_cas,
         get_compound_description,
         get_compound_synonyms,
         get_pubchem_links,
+        get_external_references,
         get_similar_compounds,
         get_compound_by_cid,
+        get_cas_number,
+        is_cas_number,
     )
 except Exception as e:
     st.error(f"Failed to import dependencies: {e}")
@@ -607,12 +611,13 @@ with st.sidebar:
 
     input_mode = st.radio(
         "Input Method:",
-        ["Chemical Name", "SMILES String", "Batch Upload (CSV/Excel)"],
+        ["Chemical Name", "CAS Number", "SMILES String", "Batch Upload (CSV/Excel)"],
         index=0,
     )
 
     compound_name = None
     smiles_input = None
+    cas_input = None
     batch_df = None
     analyze_btn = False
 
@@ -624,6 +629,15 @@ with st.sidebar:
             )
             analyze_btn = st.form_submit_button(">> Analyze", type="primary", use_container_width=True)
         st.caption("Type a name and press Enter or click Analyze")
+
+    elif input_mode == "CAS Number":
+        with st.form(key="cas_form"):
+            cas_input = st.text_input(
+                "Enter CAS Number:",
+                placeholder="e.g., 50-78-2, 58-08-2, 103-90-2",
+            )
+            analyze_btn = st.form_submit_button(">> Analyze", type="primary", use_container_width=True)
+        st.caption("Enter a CAS Registry Number (e.g., 50-78-2 for Aspirin)")
 
     elif input_mode == "SMILES String":
         with st.form(key="smiles_form"):
@@ -685,13 +699,32 @@ with st.sidebar:
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
-def analyze_single_compound(name=None, smiles=None):
+def analyze_single_compound(name=None, smiles=None, cas=None):
     """Analyze a single compound and return all data."""
     result = {}
 
-    # Step 1: Resolve compound via PubChem if name provided
+    # Step 1: Resolve compound via PubChem
     pubchem_data = None
-    if name and not smiles:
+
+    # --- CAS Number lookup ---
+    if cas:
+        with st.spinner(f"Searching PubChem for CAS '{cas}'..."):
+            pubchem_data = search_compound_by_cas(cas)
+
+        if "error" in pubchem_data:
+            st.error(pubchem_data["error"])
+            return None
+
+        smiles = pubchem_data.get("SMILES") or pubchem_data.get("Canonical SMILES") or pubchem_data.get("Isomeric SMILES")
+        if not smiles:
+            st.error(f"Could not find SMILES for CAS '{cas}' in PubChem.")
+            return None
+
+        # Use IUPAC name as the display name
+        name = pubchem_data.get("IUPAC Name", f"CAS {cas}")
+
+    # --- Name lookup ---
+    elif name and not smiles:
         with st.spinner(f"Searching PubChem for '{name}'..."):
             pubchem_data = search_compound_by_name(name)
 
@@ -711,7 +744,7 @@ def analyze_single_compound(name=None, smiles=None):
             pubchem_data = None
 
     if not smiles:
-        st.error("No SMILES string available. Please provide a compound name or SMILES.")
+        st.error("No SMILES string available. Please provide a compound name, CAS number, or SMILES.")
         return None
 
     # Step 2: Create RDKit Mol object
@@ -731,16 +764,30 @@ def analyze_single_compound(name=None, smiles=None):
     result["functional_groups"] = get_functional_groups(mol)
     result["mrm"] = calculate_mrm_data(mol)
 
-    # Step 4: PubChem extras
+    # Step 4: PubChem extras + CAS number + external references
     if pubchem_data and pubchem_data.get("CID"):
         cid = pubchem_data["CID"]
         result["description"] = get_compound_description(cid)
         result["synonyms"] = get_compound_synonyms(cid)
         result["links"] = get_pubchem_links(cid)
+        # Get CAS number if not already available
+        if pubchem_data.get("CAS Number"):
+            result["cas_number"] = pubchem_data["CAS Number"]
+        else:
+            result["cas_number"] = get_cas_number(cid)
+        # External database references
+        inchikey = result["properties"].get("InChIKey")
+        result["external_refs"] = get_external_references(
+            cid=cid,
+            inchikey=inchikey,
+            cas_number=result["cas_number"],
+        )
     else:
         result["description"] = None
         result["synonyms"] = []
         result["links"] = {}
+        result["cas_number"] = cas if cas else None
+        result["external_refs"] = {}
 
     return result
 
@@ -761,6 +808,7 @@ def display_compound_report(result):
     description = result.get("description")
     synonyms = result.get("synonyms", [])
     links = result.get("links", {})
+    cas_number = result.get("cas_number")
 
     # ---- Title & Structure ----
     st.markdown(f'<p class="section-header">{name}</p>', unsafe_allow_html=True)
@@ -774,8 +822,14 @@ def display_compound_report(result):
 
         st.code(smiles, language=None)
 
+        # Show CAS Number and PubChem CID
+        id_parts = []
+        if cas_number:
+            id_parts.append(f"**CAS:** {cas_number}")
         if pubchem and pubchem.get("CID"):
-            st.markdown(f"**PubChem CID:** [{pubchem['CID']}](https://pubchem.ncbi.nlm.nih.gov/compound/{pubchem['CID']})")
+            id_parts.append(f"**PubChem CID:** [{pubchem['CID']}](https://pubchem.ncbi.nlm.nih.gov/compound/{pubchem['CID']})")
+        if id_parts:
+            st.markdown(" &nbsp;|&nbsp; ".join(id_parts))
 
     with col_info:
         if description and description.get("description"):
@@ -813,10 +867,15 @@ def display_compound_report(result):
     with tab1:
         st.markdown('<p class="section-header">Physicochemical Properties</p>', unsafe_allow_html=True)
 
-        prop_df = pd.DataFrame(
+        # Build property list with CAS at the top
+        prop_rows = []
+        if cas_number:
+            prop_rows.append({"Property": "CAS Registry Number", "Value": cas_number})
+        prop_rows.extend(
             [{"Property": k, "Value": v} for k, v in props.items()
              if k not in ["InChI", "InChIKey"]]
         )
+        prop_df = pd.DataFrame(prop_rows)
         st.dataframe(prop_df, use_container_width=True, hide_index=True, height=500)
 
         # InChI in expander (they're long)
@@ -926,11 +985,50 @@ def display_compound_report(result):
     with tab5:
         st.markdown('<p class="section-header">References & External Links</p>', unsafe_allow_html=True)
 
+        external_refs = result.get("external_refs", {})
+
+        # External Database Links (like ChemDash)
+        if external_refs:
+            col_ref1, col_ref2 = st.columns(2)
+            with col_ref1:
+                st.markdown("#### Database References")
+                if cas_number:
+                    st.metric("CAS Number", cas_number)
+                if pubchem and pubchem.get("CID"):
+                    st.metric("PubChem CID", pubchem["CID"])
+                st.markdown("#### External Links")
+                link_icons = {
+                    "PubChem": "\U0001f310",
+                    "ChemSpider": "\U0001f52c",
+                    "DrugBank": "\U0001f48a",
+                    "CompTox (EPA)": "\U0001f3ed",
+                    "ChEBI": "\U0001f9ea",
+                    "Wikipedia": "\U0001f4d6",
+                    "NIST WebBook": "\U0001f4ca",
+                }
+                for ref_name, ref_url in external_refs.items():
+                    icon = link_icons.get(ref_name, "\U0001f517")
+                    st.markdown(f"{icon} [{ref_name}]({ref_url})")
+
+            with col_ref2:
+                st.markdown("#### Compound Identifiers")
+                if pubchem and pubchem.get("IUPAC Name"):
+                    st.text_area("IUPAC Name", pubchem["IUPAC Name"], height=80)
+                if props.get("InChIKey") and props["InChIKey"] != "N/A":
+                    st.code(f"InChIKey: {props['InChIKey']}", language=None)
+                if synonyms:
+                    with st.expander(f"Synonyms ({len(synonyms)} names)"):
+                        st.write(", ".join(synonyms[:15]))
+        else:
+            st.info("No external references available (compound may not be in PubChem).")
+
+        st.markdown("---")
+        st.markdown("#### PubChem Section Links")
         if links:
             for link_name, url in links.items():
                 st.markdown(f"- [{link_name}]({url})")
         else:
-            st.info("No PubChem links available (compound may not be in PubChem).")
+            st.info("No PubChem links available.")
 
         # PubChem data
         if pubchem and not pubchem.get("error"):
@@ -942,7 +1040,10 @@ def display_compound_report(result):
         st.markdown('<p class="section-header">Export Data</p>', unsafe_allow_html=True)
 
         # Export all properties as CSV
-        export_data = {**props}
+        export_data = {}
+        if cas_number:
+            export_data["CAS Number"] = cas_number
+        export_data.update(props)
         if mrm:
             export_data["Monoisotopic Mass"] = mrm.get("Monoisotopic Mass")
             for adduct, mz in mrm.get("Positive Mode Adducts", {}).items():
@@ -993,7 +1094,7 @@ def display_compound_report(result):
 # ============================================================
 if analyze_btn:
 
-    # ---- SINGLE COMPOUND (Name or SMILES) ----
+    # ---- SINGLE COMPOUND (Name, CAS, or SMILES) ----
     if input_mode in ["Chemical Name", "SMILES String"]:
         if not compound_name and not smiles_input:
             st.warning("Please enter a compound name or SMILES string.")
@@ -1002,6 +1103,14 @@ if analyze_btn:
                 name=compound_name if compound_name else None,
                 smiles=smiles_input if smiles_input else None,
             )
+            if result:
+                display_compound_report(result)
+
+    elif input_mode == "CAS Number":
+        if not cas_input:
+            st.warning("Please enter a CAS Registry Number.")
+        else:
+            result = analyze_single_compound(cas=cas_input.strip())
             if result:
                 display_compound_report(result)
 
@@ -1105,17 +1214,22 @@ if analyze_btn:
                             use_container_width=True,
                         )
 
-                # Show individual reports in expanders
+                # Show individual reports (without outer expander to avoid nesting)
                 st.markdown("---")
                 st.markdown("### Detailed Reports")
-                for compound in compounds[:20]:  # Limit detailed view
+                selected_compound = st.selectbox(
+                    "Select compound for detailed view:",
+                    compounds[:20],
+                    index=0,
+                    key="batch_detail_select",
+                )
+                if selected_compound:
                     if input_type_col == "Compound Names":
-                        r = analyze_single_compound(name=compound)
+                        r = analyze_single_compound(name=selected_compound)
                     else:
-                        r = analyze_single_compound(smiles=compound)
+                        r = analyze_single_compound(smiles=selected_compound)
                     if r:
-                        with st.expander(f"[Detail] {compound}"):
-                            display_compound_report(r)
+                        display_compound_report(r)
 
             if failed:
                 st.warning(f"Failed to analyze: {', '.join(failed)}")

@@ -2,12 +2,21 @@
 PubChem API integration for compound data retrieval.
 """
 
+import re
 import requests
 import time
 import json
 
 PUBCHEM_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 PUBCHEM_VIEW = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view"
+
+# Regex to detect CAS numbers (e.g. 50-78-2, 58-08-2, 103-90-2)
+CAS_PATTERN = re.compile(r"^\d{2,7}-\d{2}-\d$")
+
+
+def is_cas_number(text: str) -> bool:
+    """Check if a string looks like a CAS Registry Number."""
+    return bool(CAS_PATTERN.match(text.strip()))
 
 
 def search_compound_by_name(name: str):
@@ -155,6 +164,46 @@ def get_pubchem_links(cid: int):
     }
 
 
+def get_external_references(cid: int, inchikey: str = None, cas_number: str = None):
+    """Generate external database reference links for a compound.
+
+    Returns a dict of {database_name: url} for various chemistry databases.
+    """
+    refs = {}
+
+    # PubChem
+    if cid:
+        refs["PubChem"] = f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}"
+
+    # ChemSpider (search by InChIKey or name)
+    if inchikey and inchikey != "N/A":
+        refs["ChemSpider"] = f"https://www.chemspider.com/Search.aspx?q={inchikey}"
+
+    # DrugBank (search)
+    if cid:
+        refs["DrugBank"] = f"https://go.drugbank.com/unearth/q?searcher=drugs&query={cid}"
+
+    # CompTox EPA (search by CAS or InChIKey)
+    if cas_number:
+        refs["CompTox (EPA)"] = f"https://comptox.epa.gov/dashboard/chemical/details/{cas_number}"
+    elif inchikey and inchikey != "N/A":
+        refs["CompTox (EPA)"] = f"https://comptox.epa.gov/dashboard/chemical/details/{inchikey}"
+
+    # ChEBI
+    if inchikey and inchikey != "N/A":
+        refs["ChEBI"] = f"https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString={inchikey}"
+
+    # Wikipedia
+    if cas_number:
+        refs["Wikipedia"] = f"https://en.wikipedia.org/wiki/Special:Search?search={cas_number}"
+
+    # NIST Chemistry WebBook
+    if cas_number:
+        refs["NIST WebBook"] = f"https://webbook.nist.gov/cgi/cbook.cgi?ID={cas_number}&Units=SI"
+
+    return refs
+
+
 def get_similar_compounds(cid: int, threshold=90, max_results=5):
     """Find structurally similar compounds in PubChem."""
     try:
@@ -172,3 +221,46 @@ def get_similar_compounds(cid: int, threshold=90, max_results=5):
         return []
     except Exception:
         return []
+
+
+def search_compound_by_cas(cas_number: str):
+    """Search PubChem by CAS Registry Number and return compound data."""
+    try:
+        # PubChem can resolve CAS numbers via the /name/ endpoint
+        url = f"{PUBCHEM_BASE}/compound/name/{requests.utils.quote(cas_number.strip())}/JSON"
+        resp = requests.get(url, timeout=15)
+
+        if resp.status_code == 200:
+            data = resp.json()
+            compounds = data.get("PC_Compounds", [])
+            if compounds:
+                compound = compounds[0]
+                cid = compound.get("id", {}).get("id", {}).get("cid")
+                result = extract_compound_data(compound, cid)
+                result["CAS Number"] = cas_number.strip()
+                return result
+        elif resp.status_code == 404:
+            return {"error": f"CAS Number '{cas_number}' not found in PubChem."}
+
+        return {"error": f"PubChem API error: {resp.status_code}"}
+
+    except requests.exceptions.Timeout:
+        return {"error": "PubChem request timed out. Please try again."}
+    except Exception as e:
+        return {"error": f"Error querying PubChem: {str(e)}"}
+
+
+def get_cas_number(cid: int):
+    """Retrieve CAS Registry Number for a compound from PubChem synonyms.
+
+    CAS numbers are typically found in the synonyms list and follow the
+    pattern: digits-digits-digit (e.g. 50-78-2 for aspirin).
+    """
+    try:
+        synonyms = get_compound_synonyms(cid, limit=50)
+        for syn in synonyms:
+            if CAS_PATTERN.match(syn.strip()):
+                return syn.strip()
+        return None
+    except Exception:
+        return None
