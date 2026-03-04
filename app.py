@@ -75,8 +75,11 @@ is_dark = st.session_state.theme == "Dark"
 if is_dark:
     theme_css = """
     <style>
-        /* ===== DARK THEME ===== */
-        .stApp { background-color: #0d1117; color: #e6edf3; }
+        /* ===== DARK THEME (overrides native light base) ===== */
+        .stApp { background-color: #0d1117 !important; color: #e6edf3 !important; }
+        .stApp p, .stApp span, .stApp label, .stApp li { color: #e6edf3 !important; }
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #e6edf3 !important; }
+        .stApp code { color: #e6edf3 !important; background-color: #161b22 !important; }
 
         .main-header {
             font-size: 2.4rem; font-weight: 800;
@@ -84,14 +87,29 @@ if is_dark:
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; margin-bottom: 0.3rem; letter-spacing: -0.5px;
         }
-        .sub-header { font-size: 0.95rem; color: #8b949e; text-align: center; margin-bottom: 2rem; }
-        .section-header { font-size: 1.3rem; font-weight: 600; color: #79c0ff;
+        .sub-header { font-size: 0.95rem; color: #8b949e !important; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #79c0ff !important;
             border-bottom: 2px solid #1f6feb; padding-bottom: 6px; margin-top: 1.5rem; }
 
-        section[data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #21262d; }
+        /* Sidebar */
+        section[data-testid="stSidebar"] { background-color: #161b22 !important; border-right: 1px solid #21262d !important; }
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 { color: #e6edf3 !important; }
+        section[data-testid="stSidebar"] label { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] p { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] span { color: #c9d1d9 !important; }
+        section[data-testid="stSidebar"] input { color: #e6edf3 !important; background-color: #0d1117 !important; }
+        section[data-testid="stSidebar"] .stCaption p { color: #8b949e !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #0d1117 !important; border: 2px dashed #30363d !important; border-radius: 10px; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] span { color: #c9d1d9 !important; }
 
+        /* Selectbox / dropdowns */
+        .stSelectbox div[data-baseweb="select"] { background-color: #0d1117 !important; }
+        .stSelectbox div[data-baseweb="select"] span { color: #e6edf3 !important; }
+
+        /* Tabs */
         .stTabs [data-baseweb="tab-list"] {
-            background-color: #161b22; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #21262d;
+            background-color: #161b22 !important; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #21262d;
         }
         .stTabs [data-baseweb="tab-list"] button {
             font-size: 1.0rem; font-weight: 500; color: #8b949e !important;
@@ -102,24 +120,27 @@ if is_dark:
         }
         .stTabs [data-baseweb="tab-list"] button:hover { color: #e6edf3 !important; background-color: #21262d; }
 
-        div[data-testid="stMetric"] { background-color: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 12px 16px; }
+        /* Metrics */
+        div[data-testid="stMetric"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px; padding: 12px 16px; }
         div[data-testid="stMetric"] label { color: #8b949e !important; font-size: 0.85rem !important; text-transform: uppercase; }
         div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #58a6ff !important; font-weight: 700 !important; }
 
+        /* DataFrame */
         .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #21262d; }
 
-        div[data-testid="stExpander"] { background-color: #161b22; border: 1px solid #21262d !important; border-radius: 10px !important; margin-bottom: 8px; }
+        /* Expander */
+        div[data-testid="stExpander"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px !important; margin-bottom: 8px; }
         div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #e6edf3 !important; }
         div[data-testid="stExpander"] details > div { border-top: 1px solid #21262d; }
 
         div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
 
+        /* Buttons */
         .stFormSubmitButton > button {
             background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
             color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
         }
         .stFormSubmitButton > button:hover { background: linear-gradient(135deg, #388bfd, #58a6ff) !important; }
-
         .stDownloadButton > button {
             background-color: #161b22 !important; color: #58a6ff !important;
             border: 1px solid #1f6feb !important; border-radius: 8px !important;
@@ -132,8 +153,6 @@ if is_dark:
 
         .stProgress > div > div > div { background: linear-gradient(90deg, #1f6feb, #a371f7) !important; border-radius: 10px; }
         .stProgress > div > div { background-color: #21262d !important; border-radius: 10px; }
-
-        div[data-testid="stFileUploader"] { background-color: #161b22; border: 2px dashed #30363d !important; border-radius: 10px; }
 
         .stMarkdown table { border-collapse: collapse; width: 100%; }
         .stMarkdown th { background-color: #161b22 !important; color: #58a6ff !important; border: 1px solid #30363d !important; padding: 10px 14px !important; font-weight: 600; }
