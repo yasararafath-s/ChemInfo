@@ -27,8 +27,8 @@ build/
 Thumbs.db
 desktop.ini
 
-# Streamlit
-.streamlit/
+# Streamlit secrets (config.toml is tracked for cloud deployment)
+.streamlit/secrets.toml
 
 # Jupyter
 .ipynb_checkpoints/

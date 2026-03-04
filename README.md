@@ -25,7 +25,36 @@ After launching, the dashboard provides a sidebar for input and a main area with
 - **References Tab** — PubChem links and raw data
 - **Export Tab** — Download buttons for CSV and PNG files
 
-## Installation
+## Try It Online (No Installation)
+
+### Streamlit Community Cloud (Recommended)
+
+You can deploy and use this app directly in the browser — no installation required:
+
+1. Go to [share.streamlit.io](https://share.streamlit.io)
+2. Sign in with your **GitHub** account
+3. Click **New app** and select:
+   - Repository: `ChemInfo`
+   - Branch: `master`
+   - Main file path: `app.py`
+4. Click **Deploy** — your app will be live in a few minutes
+
+### GitHub Codespaces
+
+Run the full development environment in your browser:
+
+1. Go to the [ChemInfo repository](https://github.com/yasararafath-s/ChemInfo)
+2. Click the green **Code** button → **Codespaces** → **Create codespace on master**
+3. Once the environment loads, run in the terminal:
+   ```bash
+   pip install -r requirements.txt
+   streamlit run app.py
+   ```
+4. Codespaces will show a popup to open the app in the browser
+
+---
+
+## Local Installation
 
 ### Prerequisites
 
@@ -104,11 +133,15 @@ A sample file (`sample_compounds.csv`) is included with 15 example compounds.
 ChemInfo/
 ├── app.py                  # Main Streamlit application
 ├── requirements.txt        # Python dependencies
+├── packages.txt            # System dependencies (Streamlit Cloud)
 ├── sample_compounds.csv    # Example compounds for batch testing
 ├── INSTALL.bat             # Windows installation script
 ├── START.bat               # Windows launch script
 ├── .gitignore              # Git ignore rules
+├── LICENSE                 # MIT License
 ├── README.md               # This file
+├── .streamlit/
+│   └── config.toml         # Streamlit theme & server config
 └── utils/
     ├── __init__.py
     ├── chem_properties.py  # RDKit property calculations & drug-likeness
