@@ -76,20 +76,7 @@ is_dark = st.session_state.theme == "Dark"
 if is_dark:
     theme_css = """
     <style>
-        /* ===== DARK THEME (comprehensive overrides for light base) ===== */
-
-        /* --- Global backgrounds & text --- */
-        .stApp, .main, .block-container { background-color: #0d1117 !important; color: #e6edf3 !important; }
-        .stApp p, .stApp span, .stApp label, .stApp li, .stApp div { color: #e6edf3 !important; }
-        .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 { color: #e6edf3 !important; }
-        .stApp code { color: #e6edf3 !important; background-color: #161b22 !important; }
-        .stApp pre { background-color: #161b22 !important; color: #e6edf3 !important; }
-
-        /* --- Top toolbar / header bar --- */
-        header[data-testid="stHeader"] { background-color: #0d1117 !important; border-bottom: 1px solid #21262d !important; }
-        header[data-testid="stHeader"] * { color: #e6edf3 !important; }
-        .stDeployButton, [data-testid="stToolbar"] { color: #8b949e !important; }
-        [data-testid="stToolbar"] button { color: #8b949e !important; }
+        /* ===== DARK THEME (native dark base — minimal overrides needed) ===== */
 
         /* --- Custom classes --- */
         .main-header {
@@ -102,47 +89,9 @@ if is_dark:
         .section-header { font-size: 1.3rem; font-weight: 600; color: #79c0ff !important;
             border-bottom: 2px solid #1f6feb; padding-bottom: 6px; margin-top: 1.5rem; }
 
-        /* --- Sidebar --- */
-        section[data-testid="stSidebar"] { background-color: #161b22 !important; border-right: 1px solid #21262d !important; }
-        section[data-testid="stSidebar"] > div { background-color: #161b22 !important; }
-        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3 { color: #e6edf3 !important; }
-        section[data-testid="stSidebar"] label { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] p { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] span { color: #c9d1d9 !important; }
+        /* --- Sidebar refinements --- */
+        section[data-testid="stSidebar"] { border-right: 1px solid #21262d !important; }
         section[data-testid="stSidebar"] .stCaption p { color: #8b949e !important; }
-        section[data-testid="stSidebar"] .stMarkdown { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] .stAlert p { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] li { color: #c9d1d9 !important; }
-
-        /* Sidebar inputs */
-        section[data-testid="stSidebar"] input { color: #e6edf3 !important; background-color: #0d1117 !important; border-color: #30363d !important; }
-        section[data-testid="stSidebar"] textarea { color: #e6edf3 !important; background-color: #0d1117 !important; border-color: #30363d !important; }
-
-        /* Sidebar file uploader */
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #0d1117 !important; border: 2px dashed #30363d !important; border-radius: 10px; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] * { color: #c9d1d9 !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] button { background-color: #21262d !important; color: #c9d1d9 !important; border: 1px solid #30363d !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] { background-color: #0d1117 !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] { background-color: #161b22 !important; border-color: #30363d !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] * { color: #c9d1d9 !important; }
-
-        /* --- Radio buttons --- */
-        .stRadio div[role="radiogroup"] label { color: #c9d1d9 !important; }
-        .stRadio div[role="radiogroup"] div[data-testid="stMarkdownContainer"] p { color: #c9d1d9 !important; }
-
-        /* --- Selectbox / dropdowns --- */
-        .stSelectbox div[data-baseweb="select"] { background-color: #0d1117 !important; border-color: #30363d !important; }
-        .stSelectbox div[data-baseweb="select"] * { color: #e6edf3 !important; }
-        .stSelectbox svg { fill: #8b949e !important; }
-        div[data-baseweb="popover"] { background-color: #161b22 !important; border: 1px solid #30363d !important; }
-        div[data-baseweb="popover"] li { background-color: #161b22 !important; color: #e6edf3 !important; }
-        div[data-baseweb="popover"] li:hover { background-color: #21262d !important; }
-        div[data-baseweb="menu"] { background-color: #161b22 !important; }
-        div[data-baseweb="menu"] li { color: #e6edf3 !important; }
-
-        /* --- Toggle switch --- */
-        .stToggle label span { color: #c9d1d9 !important; }
 
         /* --- Tabs --- */
         .stTabs [data-baseweb="tab-list"] {
@@ -156,32 +105,25 @@ if is_dark:
             background-color: #1f6feb !important; color: #ffffff !important; font-weight: 600;
         }
         .stTabs [data-baseweb="tab-list"] button:hover { color: #e6edf3 !important; background-color: #21262d; }
-        .stTabs [data-baseweb="tab-panel"] { background-color: #0d1117 !important; }
 
         /* --- Metrics --- */
         div[data-testid="stMetric"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px; padding: 12px 16px; }
         div[data-testid="stMetric"] label { color: #8b949e !important; font-size: 0.85rem !important; text-transform: uppercase; }
         div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #58a6ff !important; font-weight: 700 !important; }
 
-        /* --- DataFrame / DataEditor --- */
+        /* --- DataFrame --- */
         .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #21262d !important; }
-        div[data-testid="stDataFrame"] > div { background-color: #0d1117 !important; }
-        .dvn-scroller { background-color: #0d1117 !important; }
-        .glideDataEditor { background-color: #0d1117 !important; }
 
         /* --- Expander --- */
         div[data-testid="stExpander"] { background-color: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px !important; margin-bottom: 8px; }
         div[data-testid="stExpander"] details summary { background-color: #161b22 !important; }
-        div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #e6edf3 !important; }
+        div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; }
         div[data-testid="stExpander"] details > div { border-top: 1px solid #21262d; background-color: #161b22 !important; }
 
-        /* --- Alerts / Info / Success / Warning --- */
+        /* --- Alerts --- */
         div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
-        .stAlert > div { background-color: #161b22 !important; }
 
         /* --- Buttons --- */
-        .stButton > button { background-color: #21262d !important; color: #e6edf3 !important; border: 1px solid #30363d !important; border-radius: 8px !important; }
-        .stButton > button:hover { background-color: #30363d !important; border-color: #8b949e !important; }
         .stFormSubmitButton > button {
             background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
             color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
@@ -192,15 +134,6 @@ if is_dark:
             border: 1px solid #1f6feb !important; border-radius: 8px !important;
         }
         .stDownloadButton > button:hover { background-color: #1f6feb !important; color: #ffffff !important; }
-
-        /* --- Text area / Text input --- */
-        .stTextArea textarea { background-color: #0d1117 !important; color: #e6edf3 !important; border-color: #30363d !important; }
-        .stTextInput input { background-color: #0d1117 !important; color: #e6edf3 !important; border-color: #30363d !important; }
-
-        /* --- Links --- */
-        a { color: #58a6ff !important; }
-        a:hover { color: #79c0ff !important; }
-        hr { border-color: #21262d !important; }
 
         /* --- Progress bar --- */
         .stProgress > div > div > div { background: linear-gradient(90deg, #1f6feb, #a371f7) !important; border-radius: 10px; }
@@ -219,15 +152,10 @@ if is_dark:
         .pass-badge { background: linear-gradient(135deg, #238636, #2ea043); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
         .fail-badge { background: linear-gradient(135deg, #da3633, #f85149); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
 
-        /* --- Divider --- */
-        .stDivider { border-color: #21262d !important; }
-
-        /* --- Multiselect --- */
-        .stMultiSelect div[data-baseweb="select"] { background-color: #0d1117 !important; border-color: #30363d !important; }
-        .stMultiSelect div[data-baseweb="select"] * { color: #e6edf3 !important; }
-
-        /* --- Tooltips --- */
-        div[data-baseweb="tooltip"] { background-color: #161b22 !important; color: #e6edf3 !important; }
+        /* --- Links --- */
+        a { color: #58a6ff !important; }
+        a:hover { color: #79c0ff !important; }
+        hr { border-color: #21262d !important; }
 
         /* --- Scrollbar --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -238,38 +166,77 @@ if is_dark:
 else:
     theme_css = """
     <style>
-        /* ===== LIGHT THEME ===== */
-        .stApp { background-color: #ffffff; color: #1f2937; }
+        /* ===== LIGHT THEME (comprehensive overrides for dark base) ===== */
 
+        /* --- Global backgrounds & text --- */
+        .stApp, .main, .block-container { background-color: #ffffff !important; color: #1f2937 !important; }
+        .stApp p, .stApp span, .stApp label, .stApp li, .stApp div { color: #1f2937 !important; }
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 { color: #1E3A5F !important; }
+        .stApp code { color: #1f2937 !important; background-color: #f1f5f9 !important; }
+        .stApp pre { background-color: #f1f5f9 !important; color: #1f2937 !important; }
+
+        /* --- Top toolbar / header bar --- */
+        header[data-testid="stHeader"] { background-color: #ffffff !important; border-bottom: 1px solid #e2e8f0 !important; }
+        header[data-testid="stHeader"] * { color: #1f2937 !important; }
+        .stDeployButton, [data-testid="stToolbar"] { color: #6b7280 !important; }
+        [data-testid="stToolbar"] button { color: #6b7280 !important; }
+
+        /* --- Custom classes --- */
         .main-header {
             font-size: 2.4rem; font-weight: 800;
             background: linear-gradient(135deg, #1E3A5F 0%, #2563eb 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; margin-bottom: 0.3rem; letter-spacing: -0.5px;
         }
-        .sub-header { font-size: 0.95rem; color: #6b7280; text-align: center; margin-bottom: 2rem; }
-        .section-header { font-size: 1.3rem; font-weight: 600; color: #1E3A5F;
+        .sub-header { font-size: 0.95rem; color: #6b7280 !important; text-align: center; margin-bottom: 2rem; }
+        .section-header { font-size: 1.3rem; font-weight: 600; color: #1E3A5F !important;
             border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin-top: 1.5rem; }
 
-        section[data-testid="stSidebar"] { background-color: #f8fafc; border-right: 1px solid #e5e7eb; }
+        /* --- Sidebar --- */
+        section[data-testid="stSidebar"] { background-color: #f8fafc !important; border-right: 1px solid #e5e7eb !important; }
+        section[data-testid="stSidebar"] > div { background-color: #f8fafc !important; }
         section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
         section[data-testid="stSidebar"] h3 { color: #1E3A5F !important; }
         section[data-testid="stSidebar"] label { color: #1f2937 !important; }
         section[data-testid="stSidebar"] p { color: #1f2937 !important; }
         section[data-testid="stSidebar"] span { color: #1f2937 !important; }
-        section[data-testid="stSidebar"] .stRadio label span { color: #1f2937 !important; }
         section[data-testid="stSidebar"] .stCaption p { color: #6b7280 !important; }
         section[data-testid="stSidebar"] .stMarkdown { color: #1f2937 !important; }
-        section[data-testid="stSidebar"] input { color: #1f2937 !important; background-color: #ffffff !important; }
-        section[data-testid="stSidebar"] .stSelectbox label,
-        section[data-testid="stSidebar"] .stRadio label,
-        section[data-testid="stSidebar"] .stTextInput label { color: #1f2937 !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #ffffff; border-color: #cbd5e1 !important; }
-        section[data-testid="stSidebar"] [data-testid="stFileUploader"] span { color: #1f2937 !important; }
         section[data-testid="stSidebar"] .stAlert p { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] li { color: #1f2937 !important; }
 
+        /* Sidebar inputs */
+        section[data-testid="stSidebar"] input { color: #1f2937 !important; background-color: #ffffff !important; border-color: #cbd5e1 !important; }
+        section[data-testid="stSidebar"] textarea { color: #1f2937 !important; background-color: #ffffff !important; border-color: #cbd5e1 !important; }
+
+        /* Sidebar file uploader */
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] { background-color: #ffffff !important; border: 2px dashed #cbd5e1 !important; border-radius: 10px; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] * { color: #1f2937 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] button { background-color: #f1f5f9 !important; color: #1f2937 !important; border: 1px solid #cbd5e1 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] { background-color: #ffffff !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] { background-color: #f8fafc !important; border-color: #e2e8f0 !important; }
+        section[data-testid="stSidebar"] [data-testid="stFileUploaderFile"] * { color: #1f2937 !important; }
+
+        /* --- Radio buttons --- */
+        .stRadio div[role="radiogroup"] label { color: #1f2937 !important; }
+        .stRadio div[role="radiogroup"] div[data-testid="stMarkdownContainer"] p { color: #1f2937 !important; }
+
+        /* --- Selectbox / dropdowns --- */
+        .stSelectbox div[data-baseweb="select"] { background-color: #ffffff !important; border-color: #cbd5e1 !important; }
+        .stSelectbox div[data-baseweb="select"] * { color: #1f2937 !important; }
+        .stSelectbox svg { fill: #6b7280 !important; }
+        div[data-baseweb="popover"] { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+        div[data-baseweb="popover"] li { background-color: #ffffff !important; color: #1f2937 !important; }
+        div[data-baseweb="popover"] li:hover { background-color: #f1f5f9 !important; }
+        div[data-baseweb="menu"] { background-color: #ffffff !important; }
+        div[data-baseweb="menu"] li { color: #1f2937 !important; }
+
+        /* --- Toggle switch --- */
+        .stToggle label span { color: #1f2937 !important; }
+
+        /* --- Tabs --- */
         .stTabs [data-baseweb="tab-list"] {
-            background-color: #f1f5f9; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #e2e8f0;
+            background-color: #f1f5f9 !important; border-radius: 10px; padding: 4px; gap: 4px; border: 1px solid #e2e8f0;
         }
         .stTabs [data-baseweb="tab-list"] button {
             font-size: 1.0rem; font-weight: 500; color: #64748b !important;
@@ -279,51 +246,83 @@ else:
             background-color: #2563eb !important; color: #ffffff !important; font-weight: 600;
         }
         .stTabs [data-baseweb="tab-list"] button:hover { color: #1f2937 !important; background-color: #e2e8f0; }
+        .stTabs [data-baseweb="tab-panel"] { background-color: #ffffff !important; }
 
-        div[data-testid="stMetric"] { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; }
+        /* --- Metrics --- */
+        div[data-testid="stMetric"] { background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 10px; padding: 12px 16px; }
         div[data-testid="stMetric"] label { color: #6b7280 !important; font-size: 0.85rem !important; text-transform: uppercase; }
         div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #1E3A5F !important; font-weight: 700 !important; }
 
-        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+        /* --- DataFrame / DataEditor --- */
+        .stDataFrame, div[data-testid="stDataFrame"] { border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0 !important; }
+        div[data-testid="stDataFrame"] > div { background-color: #ffffff !important; }
+        .dvn-scroller { background-color: #ffffff !important; }
+        .glideDataEditor { background-color: #ffffff !important; }
 
-        div[data-testid="stExpander"] { background-color: #f8fafc; border: 1px solid #e2e8f0 !important; border-radius: 10px !important; margin-bottom: 8px; }
+        /* --- Expander --- */
+        div[data-testid="stExpander"] { background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 10px !important; margin-bottom: 8px; }
+        div[data-testid="stExpander"] details summary { background-color: #f8fafc !important; }
         div[data-testid="stExpander"] details summary p { font-size: 1.05rem; font-weight: 600; color: #1f2937 !important; }
-        div[data-testid="stExpander"] details > div { border-top: 1px solid #e2e8f0; }
+        div[data-testid="stExpander"] details > div { border-top: 1px solid #e2e8f0; background-color: #f8fafc !important; }
 
+        /* --- Alerts --- */
         div[data-testid="stAlert"], div[role="alert"] { border-radius: 10px !important; }
+        .stAlert > div { background-color: #f8fafc !important; }
 
+        /* --- Buttons --- */
+        .stButton > button { background-color: #f1f5f9 !important; color: #1f2937 !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; }
+        .stButton > button:hover { background-color: #e2e8f0 !important; border-color: #94a3b8 !important; }
         .stFormSubmitButton > button {
             background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
             color: #ffffff !important; border: none !important; border-radius: 8px !important; font-weight: 600;
         }
         .stFormSubmitButton > button:hover { background: linear-gradient(135deg, #3b82f6, #60a5fa) !important; }
-
         .stDownloadButton > button {
             background-color: #f8fafc !important; color: #2563eb !important;
             border: 1px solid #3b82f6 !important; border-radius: 8px !important;
         }
         .stDownloadButton > button:hover { background-color: #2563eb !important; color: #ffffff !important; }
 
+        /* --- Text area / Text input --- */
+        .stTextArea textarea { background-color: #ffffff !important; color: #1f2937 !important; border-color: #cbd5e1 !important; }
+        .stTextInput input { background-color: #ffffff !important; color: #1f2937 !important; border-color: #cbd5e1 !important; }
+
+        /* --- Links --- */
+        a { color: #2563eb !important; }
+        a:hover { color: #1d4ed8 !important; }
+        hr { border-color: #e2e8f0 !important; }
+
+        /* --- Progress bar --- */
         .stProgress > div > div > div { background: linear-gradient(90deg, #2563eb, #7c3aed) !important; border-radius: 10px; }
+        .stProgress > div > div { background-color: #e2e8f0 !important; border-radius: 10px; }
 
-        .stImage { border-radius: 10px; border: 1px solid #e2e8f0; }
-
+        /* --- Markdown tables --- */
+        .stMarkdown table { border-collapse: collapse; width: 100%; }
         .stMarkdown th { background-color: #f1f5f9 !important; color: #1E3A5F !important; border: 1px solid #e2e8f0 !important; padding: 10px 14px !important; font-weight: 600; }
-        .stMarkdown td { border: 1px solid #e2e8f0 !important; padding: 8px 14px !important; }
+        .stMarkdown td { background-color: #ffffff !important; color: #1f2937 !important; border: 1px solid #e2e8f0 !important; padding: 8px 14px !important; }
         .stMarkdown tr:hover td { background-color: #f8fafc !important; }
 
+        /* --- Images --- */
+        .stImage { border-radius: 10px; border: 1px solid #e2e8f0; }
+
+        /* --- Badges --- */
         .pass-badge { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
         .fail-badge { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
 
-        /* Force light-mode text colors on main content */
-        .stApp p, .stApp span, .stApp label, .stApp li { color: #1f2937; }
-        .stApp h1, .stApp h2, .stApp h3, .stApp h4 { color: #1E3A5F; }
-        .stApp .stMarkdown { color: #1f2937; }
-        .stApp code { color: #1f2937; background-color: #f1f5f9; }
-        .stApp a { color: #2563eb !important; }
-        .stApp a:hover { color: #1d4ed8 !important; }
-        .stApp .stSelectbox label { color: #1f2937 !important; }
-        .stApp hr { border-color: #e2e8f0 !important; }
+        /* --- Divider --- */
+        .stDivider { border-color: #e2e8f0 !important; }
+
+        /* --- Multiselect --- */
+        .stMultiSelect div[data-baseweb="select"] { background-color: #ffffff !important; border-color: #cbd5e1 !important; }
+        .stMultiSelect div[data-baseweb="select"] * { color: #1f2937 !important; }
+
+        /* --- Tooltips --- */
+        div[data-baseweb="tooltip"] { background-color: #ffffff !important; color: #1f2937 !important; }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
     """
 
