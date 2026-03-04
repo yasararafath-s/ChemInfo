@@ -6,7 +6,6 @@ RDKit-based physicochemical property calculations.
 from rdkit import Chem
 from rdkit.Chem import Descriptors, Lipinski, Crippen, rdMolDescriptors, QED
 from rdkit.Chem import Draw, AllChem
-from rdkit.Chem import rdFingerprintGenerator
 from io import BytesIO
 from PIL import Image
 import base64
@@ -93,11 +92,16 @@ def calculate_physicochemical_properties(mol):
 
     # --- InChI & InChIKey ---
     try:
-        props["InChI"] = Chem.MolToInchi(mol)
-        props["InChIKey"] = Chem.InchiToInchiKey(props["InChI"])
+        from rdkit.Chem.inchi import MolToInchi, InchiToInchiKey
+        props["InChI"] = MolToInchi(mol)
+        props["InChIKey"] = InchiToInchiKey(props["InChI"])
     except Exception:
-        props["InChI"] = "N/A"
-        props["InChIKey"] = "N/A"
+        try:
+            props["InChI"] = Chem.MolToInchi(mol)
+            props["InChIKey"] = Chem.InchiToInchiKey(props["InChI"])
+        except Exception:
+            props["InChI"] = "N/A"
+            props["InChIKey"] = "N/A"
 
     return props
 

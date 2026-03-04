@@ -4,7 +4,7 @@ Calculates precursor ions, common adducts, and predicted fragment ions.
 """
 
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors, Fragments
+from rdkit.Chem import Descriptors, rdMolDescriptors
 import re
 
 

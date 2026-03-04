@@ -7,29 +7,35 @@ ChemInfo Dashboard - Comprehensive Chemical Compound Analyzer
 import streamlit as st
 import pandas as pd
 import time
+import traceback
 from io import BytesIO
 
-# RDKit imports
-from rdkit import Chem
-from rdkit.Chem import Draw
+try:
+    # RDKit imports
+    from rdkit import Chem
+    from rdkit.Chem import Draw
 
-# Local utility modules
-from utils.chem_properties import (
-    get_mol_from_smiles,
-    generate_structure_image,
-    calculate_physicochemical_properties,
-    evaluate_drug_likeness,
-    get_functional_groups,
-)
-from utils.mrm_calculator import calculate_mrm_data
-from utils.pubchem_api import (
-    search_compound_by_name,
-    get_compound_description,
-    get_compound_synonyms,
-    get_pubchem_links,
-    get_similar_compounds,
-    get_compound_by_cid,
-)
+    # Local utility modules
+    from utils.chem_properties import (
+        get_mol_from_smiles,
+        generate_structure_image,
+        calculate_physicochemical_properties,
+        evaluate_drug_likeness,
+        get_functional_groups,
+    )
+    from utils.mrm_calculator import calculate_mrm_data
+    from utils.pubchem_api import (
+        search_compound_by_name,
+        get_compound_description,
+        get_compound_synonyms,
+        get_pubchem_links,
+        get_similar_compounds,
+        get_compound_by_cid,
+    )
+except Exception as e:
+    st.error(f"Failed to import dependencies: {e}")
+    st.code(traceback.format_exc())
+    st.stop()
 
 
 # ============================================================
@@ -37,7 +43,7 @@ from utils.pubchem_api import (
 # ============================================================
 st.set_page_config(
     page_title="ChemInfo Dashboard",
-    page_icon="*",
+    page_icon="\U0001f9ea",
     layout="wide",
     initial_sidebar_state="expanded",
 )
