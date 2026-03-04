@@ -739,16 +739,13 @@ if analyze_btn:
             if result:
                 display_compound_report(result)
 
-    # ---- BATCH PROCESSING ----
+    # ---- BATCH PROCESSING (analysis & caching only) ----
     elif input_mode == "Batch Upload (CSV/Excel)" and batch_df is not None:
         compounds = batch_df[selected_col].dropna().unique().tolist()
 
         if not compounds:
             st.warning("No compounds found in the selected column.")
         else:
-            st.markdown(f'<p class="section-header">Batch Analysis: {len(compounds)} compounds</p>',
-                        unsafe_allow_html=True)
-
             # Check if we already have cached results for these exact compounds
             cache_key = tuple(compounds)
             need_analysis = (
@@ -757,12 +754,16 @@ if analyze_btn:
             )
 
             if need_analysis:
+                st.markdown(
+                    f'<p class="section-header">Analyzing {len(compounds)} compounds...</p>',
+                    unsafe_allow_html=True,
+                )
                 progress_bar = st.progress(0)
                 status_text = st.empty()
 
                 all_results = []
                 all_mrm = []
-                batch_reports = {}  # Cache full reports keyed by compound name
+                batch_reports = {}
                 failed = []
 
                 for i, compound in enumerate(compounds):
@@ -779,7 +780,6 @@ if analyze_btn:
                             row = {"Compound": compound, "CAS Number": result.get("cas_number", ""), "SMILES": result["smiles"]}
                             row.update(result["properties"])
 
-                            # Add MRM data
                             mrm = result.get("mrm", {})
                             if mrm:
                                 row["Monoisotopic Mass"] = mrm.get("Monoisotopic Mass")
@@ -792,16 +792,14 @@ if analyze_btn:
                                 if "[M-H]-" in neg_adducts:
                                     row["[M-H]- (m/z)"] = neg_adducts["[M-H]-"]
 
-                                # Add top transitions
                                 transitions = mrm.get("Suggested MRM Transitions", [])
                                 for j, t in enumerate(transitions[:3]):
                                     row[f"MRM Transition {j+1}"] = t.get("Transition", "")
                                     row[f"CE {j+1} (eV)"] = t.get("Est. CE (eV)", "")
 
                             all_results.append(row)
-                            batch_reports[compound] = result  # Cache full report
+                            batch_reports[compound] = result
 
-                            # Collect MRM transitions separately
                             for t in mrm.get("Suggested MRM Transitions", []):
                                 t_row = {"Compound": compound, **t}
                                 all_mrm.append(t_row)
@@ -812,7 +810,6 @@ if analyze_btn:
                     except Exception as e:
                         failed.append(compound)
 
-                    # Rate limit PubChem requests
                     time.sleep(0.3)
 
                 progress_bar.empty()
@@ -826,61 +823,72 @@ if analyze_btn:
                 st.session_state.batch_failed = failed
                 st.session_state.batch_compounds = compounds
 
-            # Use cached results (either just computed or from previous run)
-            all_results = st.session_state.get("batch_results", [])
-            all_mrm = st.session_state.get("batch_mrm", [])
-            batch_reports = st.session_state.get("batch_reports", {})
-            failed = st.session_state.get("batch_failed", [])
 
-            # Display results
-            if all_results:
-                st.success(f"Successfully analyzed {len(all_results)} / {len(compounds)} compounds")
+# ============================================================
+# DISPLAY CACHED BATCH RESULTS (persists across selectbox changes)
+# ============================================================
+if (
+    input_mode == "Batch Upload (CSV/Excel)"
+    and st.session_state.get("batch_results")
+):
+    all_results = st.session_state["batch_results"]
+    all_mrm = st.session_state.get("batch_mrm", [])
+    batch_reports = st.session_state.get("batch_reports", {})
+    failed = st.session_state.get("batch_failed", [])
+    compounds = st.session_state.get("batch_compounds", [])
 
-                results_df = pd.DataFrame(all_results)
-                st.dataframe(results_df, width="stretch", hide_index=True)
+    st.markdown(
+        f'<p class="section-header">Batch Analysis: {len(compounds)} compounds</p>',
+        unsafe_allow_html=True,
+    )
 
-                # Download buttons
-                col_dl1, col_dl2 = st.columns(2)
-                with col_dl1:
-                    csv = results_df.to_csv(index=False)
-                    st.download_button(
-                        "[Download] All Properties (CSV)",
-                        data=csv,
-                        file_name="batch_compound_properties.csv",
-                        mime="text/csv",
-                        width="stretch",
-                    )
+    if all_results:
+        st.success(f"Successfully analyzed {len(all_results)} / {len(compounds)} compounds")
 
-                with col_dl2:
-                    if all_mrm:
-                        mrm_df = pd.DataFrame(all_mrm)
-                        mrm_csv = mrm_df.to_csv(index=False)
-                        st.download_button(
-                            "[Download] All MRM Transitions (CSV)",
-                            data=mrm_csv,
-                            file_name="batch_MRM_transitions.csv",
-                            mime="text/csv",
-                            width="stretch",
-                        )
+        results_df = pd.DataFrame(all_results)
+        st.dataframe(results_df, width="stretch", hide_index=True)
 
-                # Show individual reports using cached data (no re-analysis!)
-                st.markdown("---")
-                st.markdown("### Detailed Reports")
-                available_compounds = list(batch_reports.keys())
-                if available_compounds:
-                    selected_compound = st.selectbox(
-                        "Select compound for detailed view:",
-                        available_compounds,
-                        index=0,
-                        key="batch_detail_select",
-                    )
-                    if selected_compound and selected_compound in batch_reports:
-                        display_compound_report(batch_reports[selected_compound])
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            csv = results_df.to_csv(index=False)
+            st.download_button(
+                "[Download] All Properties (CSV)",
+                data=csv,
+                file_name="batch_compound_properties.csv",
+                mime="text/csv",
+                width="stretch",
+            )
 
-            if failed:
-                st.warning(f"Failed to analyze: {', '.join(failed)}")
+        with col_dl2:
+            if all_mrm:
+                mrm_df = pd.DataFrame(all_mrm)
+                mrm_csv = mrm_df.to_csv(index=False)
+                st.download_button(
+                    "[Download] All MRM Transitions (CSV)",
+                    data=mrm_csv,
+                    file_name="batch_MRM_transitions.csv",
+                    mime="text/csv",
+                    width="stretch",
+                )
 
-else:
+        # Detailed compound reports — switching here does NOT re-analyze!
+        st.markdown("---")
+        st.markdown("### Detailed Reports")
+        available_compounds = list(batch_reports.keys())
+        if available_compounds:
+            selected_compound = st.selectbox(
+                "Select compound for detailed view:",
+                available_compounds,
+                index=0,
+                key="batch_detail_select",
+            )
+            if selected_compound and selected_compound in batch_reports:
+                display_compound_report(batch_reports[selected_compound])
+
+    if failed:
+        st.warning(f"Failed to analyze: {', '.join(failed)}")
+
+elif not analyze_btn:
     # Welcome screen
     st.markdown("---")
     st.markdown("""
