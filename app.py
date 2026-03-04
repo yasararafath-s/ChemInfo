@@ -71,6 +71,20 @@ if is_dark:
         .sub-header { font-size: 1.0rem; color: #8b949e; text-align: center; margin-bottom: 2rem; }
         .section-header { font-size: 1.3rem; font-weight: 600; color: #58a6ff; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 1.5rem; }
         section[data-testid="stSidebar"] { background-color: #161b22; }
+        /* Sidebar text visibility */
+        section[data-testid="stSidebar"] * { color: #e0e0e0 !important; }
+        section[data-testid="stSidebar"] .stSelectbox label,
+        section[data-testid="stSidebar"] .stRadio label,
+        section[data-testid="stSidebar"] .stTextInput label,
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] h4,
+        section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] .stMarkdown { color: #e0e0e0 !important; }
+        section[data-testid="stSidebar"] small,
+        section[data-testid="stSidebar"] .stCaption,
+        section[data-testid="stSidebar"] caption { color: #8b949e !important; }
+        section[data-testid="stSidebar"] hr { border-color: #30363d !important; }
         .stTabs [data-baseweb="tab-list"] button { font-size: 1.05rem; }
         div[data-testid="stExpander"] details summary p { font-size: 1.1rem; font-weight: 600; }
         .pass-badge { background-color: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
@@ -86,6 +100,20 @@ else:
         .sub-header { font-size: 1.0rem; color: #666666; text-align: center; margin-bottom: 2rem; }
         .section-header { font-size: 1.3rem; font-weight: 600; color: #1E3A5F; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 1.5rem; }
         section[data-testid="stSidebar"] { background-color: #f8f9fa; }
+        /* Sidebar text visibility */
+        section[data-testid="stSidebar"] * { color: #1a1a2e !important; }
+        section[data-testid="stSidebar"] .stSelectbox label,
+        section[data-testid="stSidebar"] .stRadio label,
+        section[data-testid="stSidebar"] .stTextInput label,
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] h4,
+        section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] .stMarkdown { color: #1a1a2e !important; }
+        section[data-testid="stSidebar"] small,
+        section[data-testid="stSidebar"] .stCaption,
+        section[data-testid="stSidebar"] caption { color: #666666 !important; }
+        section[data-testid="stSidebar"] hr { border-color: #dee2e6 !important; }
         .stTabs [data-baseweb="tab-list"] button { font-size: 1.05rem; }
         div[data-testid="stExpander"] details summary p { font-size: 1.1rem; font-weight: 600; }
         .pass-badge { background-color: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
