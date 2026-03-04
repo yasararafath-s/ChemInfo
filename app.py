@@ -50,20 +50,20 @@ st.markdown("""
     .main-header {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #58a6ff;
+        color: #3498db;
         text-align: center;
         margin-bottom: 0.5rem;
     }
     .sub-header {
         font-size: 1.0rem;
-        color: #aab2bd;
+        opacity: 0.7;
         text-align: center;
         margin-bottom: 2rem;
     }
     .section-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: #58a6ff;
+        color: #3498db;
         border-bottom: 2px solid #3498db;
         padding-bottom: 5px;
         margin-top: 1.5rem;
@@ -81,13 +81,6 @@ st.markdown("""
         padding: 3px 10px;
         border-radius: 12px;
         font-weight: 600;
-    }
-    .metric-card {
-        background-color: #1a1f2e;
-        border-radius: 10px;
-        padding: 15px;
-        text-align: center;
-        border: 1px solid #2d3748;
     }
     .stTabs [data-baseweb="tab-list"] button {
         font-size: 1.05rem;
