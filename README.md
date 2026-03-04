@@ -36,7 +36,7 @@ After launching, the dashboard provides a sidebar for input and a main area with
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ChemInfo.git
+   git clone https://github.com/yasararafath-s/ChemInfo.git
    cd ChemInfo
    ```
 
@@ -56,7 +56,7 @@ After launching, the dashboard provides a sidebar for input and a main area with
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ChemInfo.git
+   git clone https://github.com/yasararafath-s/ChemInfo.git
    cd ChemInfo
    ```
 
