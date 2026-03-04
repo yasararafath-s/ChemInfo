@@ -216,46 +216,6 @@ else:
         .fail-badge { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
     </style>
     """
-    .stDownloadButton > button {
-        border-radius: 8px !important;
-        font-weight: 500;
-    }
-
-    /* --- Badges (theme-independent) --- */
-    .pass-badge {
-        background: linear-gradient(135deg, #16a34a, #22c55e);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-    .fail-badge {
-        background: linear-gradient(135deg, #dc2626, #ef4444);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    /* --- Progress Bar --- */
-    .stProgress > div > div > div {
-        border-radius: 10px;
-    }
-
-    /* --- Images (structure viewer) --- */
-    .stImage {
-        border-radius: 10px;
-        padding: 8px;
-    }
-
-    /* --- Markdown Tables --- */
-    .stMarkdown table { border-collapse: collapse; width: 100%; }
-    .stMarkdown th { padding: 10px 14px !important; font-weight: 600; }
-    .stMarkdown td { padding: 8px 14px !important; }
-</style>
-"""
 
 st.markdown(theme_css, unsafe_allow_html=True)
 
