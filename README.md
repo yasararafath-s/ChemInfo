@@ -1,6 +1,6 @@
 # ChemInfo Dashboard
 
-**Live App:** [https://yasararafath-s-cheminfo-app-tpzusl.streamlit.app](https://yasararafath-s-cheminfo-app-tpzusl.streamlit.app/)
+**Live App:** [https://yasararafath-s-cheminfo.streamlit.app](https://yasararafath-s-cheminfo.streamlit.app/)
 
 A comprehensive chemical compound analyzer built with **Streamlit** and **RDKit**. Enter a compound name, SMILES string, or upload a batch file to instantly generate physicochemical properties, 2D structures, MRM mass spectrometry data, drug-likeness evaluations, and PubChem references.
 
